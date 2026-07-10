@@ -379,6 +379,7 @@ details summary::before{content:'▸ ';color:var(--red)}details[open] summary::b
   </details></div>
 </div>
 
+<script src="data.js"></script>
 <script>
 // ---------- default labels (所有可编辑文案) ----------
 const DEFAULT_LABELS={
@@ -437,7 +438,7 @@ function ensureModel(s){
   if(!Array.isArray(s.mau))s.mau=[];
   return s;
 }
-VIEW_ONLY=(typeof window!=='undefined'&&window.__CP_VIEWONLY__)?true:false; let state=ensureModel((typeof window!=='undefined'&&window.__CP_EMBED__)?window.__CP_EMBED__:(function(){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v);}catch(e){}return EMBEDDED_DATA||seed();})());
+VIEW_ONLY=(typeof window!=='undefined'&&(window.__CP_DATA__||window.__CP_VIEWONLY__))?true:false; let state=ensureModel((typeof window!=='undefined'&&window.__CP_DATA__)?window.__CP_DATA__:((typeof window!=='undefined'&&window.__CP_EMBED__)?window.__CP_EMBED__:(function(){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v);}catch(e){}return EMBEDDED_DATA||seed();})()));
 function save(){if(VIEW_ONLY)return;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 
 let scaleMode='log';
