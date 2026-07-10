@@ -211,6 +211,9 @@ details summary::before{content:'▸ ';color:var(--red)}details[open] summary::b
     <button class="btn" onclick="exportCSV()">↓ 导出CSV(全期)</button>
     <button class="btn" onclick="exportPDF()">⇩ 导出PDF</button>
     <button class="btn btn-d edit-only" onclick="exportShare()">⤓ 导出可分享看板</button>
+    <button class="btn btn-r edit-only" id="pub-btn" onclick="publish()">🚀 发布上线</button>
+    <button class="btn edit-only" onclick="loadLive()">↻ 载入线上</button>
+    <button class="btn edit-only" onclick="setToken()">🔑 设置令牌</button>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -438,7 +441,18 @@ function ensureModel(s){
   if(!Array.isArray(s.mau))s.mau=[];
   return s;
 }
-VIEW_ONLY=(typeof window!=='undefined'&&(window.__CP_DATA__||window.__CP_VIEWONLY__))?true:false; let state=ensureModel((typeof window!=='undefined'&&window.__CP_DATA__)?window.__CP_DATA__:((typeof window!=='undefined'&&window.__CP_EMBED__)?window.__CP_EMBED__:(function(){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v);}catch(e){}return EMBEDDED_DATA||seed();})()));
+// 本地打开(file://或localhost)=可编辑；网址(github.io)打开=只读
+var EDIT_MODE=(typeof location!=='undefined')&&(location.protocol==='file:'||location.hostname==='localhost'||location.hostname==='127.0.0.1');
+VIEW_ONLY=(typeof window!=='undefined'&&window.__CP_VIEWONLY__)?true:!EDIT_MODE;
+function pickInit(){
+  if(typeof window!=='undefined'&&window.__CP_EMBED__)return window.__CP_EMBED__;
+  if(EDIT_MODE){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v);}catch(e){}}
+  if(typeof window!=='undefined'&&window.__CP_DATA__)return window.__CP_DATA__;
+  return EMBEDDED_DATA||seed();
+}
+let state=ensureModel(pickInit());
+// ---- GitHub 一键发布配置 ----
+var CP_REPO={owner:'Ning33-code',repo:'Connected-pack-data',path:'data.js',branch:'master'};
 function save(){if(VIEW_ONLY)return;try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
 
 let scaleMode='log';
@@ -865,6 +879,52 @@ function exportShare(){
   var marker='// ---------- default labels (所有可编辑文案) ----------';
   html=html.replace(marker,function(){return 'window.__CP_EMBED__='+js+';window.__CP_VIEWONLY__=true;\n'+marker;});
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));a.download='流量看板_'+curP().date+'_只读.html';a.click();toast('已导出可分享看板（含数据·离线可用）');
+}
+// ---------- 一键发布到 GitHub（仅本地编辑模式可用）----------
+function b64utf8(s){return btoa(unescape(encodeURIComponent(s)));}
+function ghToken(){try{return localStorage.getItem('cp_gh_token')||'';}catch(e){return '';}}
+function setToken(){
+  var cur=ghToken();
+  var t=prompt('粘贴你的 GitHub 发布令牌（token）。\n只保存在这台电脑上，不会写进网页、也不会上传。\n留空并确定＝清除已保存的令牌。', cur);
+  if(t===null)return;
+  t=t.trim();
+  try{localStorage.setItem('cp_gh_token',t);}catch(e){}
+  toast(t?'令牌已保存到本机':'令牌已清除');
+}
+function publish(){
+  if(VIEW_ONLY){toast('只读模式不能发布');return;}
+  var token=ghToken();
+  if(!token){ if(confirm('还没设置发布令牌。现在设置？')) setToken(); return; }
+  var btn=document.getElementById('pub-btn');
+  if(btn){btn.disabled=true;btn.dataset.old=btn.textContent;btn.textContent='发布中…';}
+  var api='https://api.github.com/repos/'+CP_REPO.owner+'/'+CP_REPO.repo+'/contents/'+encodeURIComponent(CP_REPO.path);
+  var hdr={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  var content='window.__CP_DATA__ = '+JSON.stringify(state)+';\n';
+  var msg='update data '+((curP()&&curP().date)||'')+' '+new Date().toISOString().slice(0,16).replace('T',' ');
+  function done(ok,extra){ if(btn){btn.disabled=false;btn.textContent=btn.dataset.old||'🚀 发布上线';}
+    if(ok){toast('已发布！约 1 分钟后客户刷新即最新');try{save();}catch(e){}} else {alert('发布失败：'+extra);} }
+  fetch(api+'?ref='+CP_REPO.branch,{headers:hdr}).then(function(g){
+    if(g.status===200)return g.json().then(function(j){return j.sha;});
+    if(g.status===404)return null;
+    return g.text().then(function(t){throw new Error('读取线上文件出错 '+g.status+'：'+t);});
+  }).then(function(sha){
+    var body={message:msg,content:b64utf8(content),branch:CP_REPO.branch};
+    if(sha)body.sha=sha;
+    return fetch(api,{method:'PUT',headers:hdr,body:JSON.stringify(body)});
+  }).then(function(p){
+    if(p.status===200||p.status===201){done(true);}
+    else{p.text().then(function(t){done(false,p.status+' '+t);});}
+  }).catch(function(e){done(false,e.message);});
+}
+function loadLive(){
+  if(VIEW_ONLY)return;
+  var url='https://raw.githubusercontent.com/'+CP_REPO.owner+'/'+CP_REPO.repo+'/'+CP_REPO.branch+'/'+CP_REPO.path+'?t='+Date.now();
+  fetch(url).then(function(r){if(!r.ok)throw new Error(r.status);return r.text();}).then(function(txt){
+    var s=txt.replace(/^[\s\S]*?__CP_DATA__\s*=\s*/,'').replace(/;\s*$/,'');
+    var obj=JSON.parse(s);
+    if(!confirm('用线上已发布的数据，覆盖当前正在编辑的内容？')) return;
+    state=ensureModel(obj);state.cur=state.periods.length-1;save();renderAll();toast('已载入线上最新数据');
+  }).catch(function(e){alert('载入线上数据失败：'+e.message);});
 }
 function exportPDF(){
   // 展开数据源等折叠块，确保数据源表进入 PDF
