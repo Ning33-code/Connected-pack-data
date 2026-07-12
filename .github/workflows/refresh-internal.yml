@@ -1,0 +1,39 @@
+name: refresh-internal
+
+# 内部版看板：定时从腾讯文档拉数据，更新 internal/ 目录（同事看的实时版）。
+# 客户版（根目录 data.js）不受影响，仍由主编手动发布。
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # 每 15 分钟自动刷新一次（GitHub 可能有几分钟延迟，属正常）
+  workflow_dispatch: {}       # 也可在 Actions 页面手动点“Run workflow”立即刷新
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-internal
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 从腾讯文档拉取并生成内部版数据
+        env:
+          TENCENT_DOCS_TOKEN: ${{ secrets.TENCENT_DOCS_TOKEN }}
+        run: node scripts/refresh.mjs
+      - name: 有变化才提交
+        run: |
+          git config user.name "cp-refresh-bot"
+          git config user.email "cp-refresh-bot@users.noreply.github.com"
+          git add internal/
+          if git diff --staged --quiet; then
+            echo "数据无变化，跳过提交"
+          else
+            git commit -m "internal: 自动刷新 $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
