@@ -114,7 +114,10 @@ const state = { activities: activitiesArr, periods: periodsArr, mau: mauArr, cur
 
 fs.mkdirSync('internal', { recursive: true });
 fs.writeFileSync('internal/data.js', 'window.__CP_DATA__ = ' + JSON.stringify(state) + ';\n', 'utf8');
-fs.copyFileSync('index.html', 'internal/index.html');   // 内部版看板与客户版同款，只是数据不同
+// 内部版看板与客户版同款；给 data.js 加版本号（防浏览器缓存旧数据）
+const ver = Date.now();
+const html = fs.readFileSync('index.html', 'utf8').replace(/src="data\.js"/g, `src="data.js?v=${ver}"`);
+fs.writeFileSync('internal/index.html', html, 'utf8');
 
 console.log(`[OK] internal 已生成：期数 ${periodsArr.length} · 活动 ${activitiesArr.length} · MAU ${mauArr.length} 月`);
 for (const w of warnings) console.log('  [!] ' + w);
