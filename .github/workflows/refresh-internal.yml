@@ -3,9 +3,7 @@ name: refresh-internal
 # 内部版看板：定时从腾讯文档拉数据，更新 internal/ 目录（同事看的实时版）。
 # 客户版（根目录 data.js）不受影响，仍由主编手动发布。
 on:
-  schedule:
-    - cron: '*/15 * * * *'   # 每 15 分钟自动刷新一次（GitHub 可能有几分钟延迟，属正常）
-  workflow_dispatch: {}       # 也可在 Actions 页面手动点“Run workflow”立即刷新
+  workflow_dispatch: {}       # 只按需触发：GitHub 页面手动点，或桌面“刷新内部版.bat”触发
 
 permissions:
   contents: write
