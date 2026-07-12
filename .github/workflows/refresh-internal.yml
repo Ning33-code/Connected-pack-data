@@ -17,9 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
       - name: 从腾讯文档拉取并生成内部版数据
         env:
           TENCENT_DOCS_TOKEN: ${{ secrets.TENCENT_DOCS_TOKEN }}
