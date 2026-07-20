@@ -754,11 +754,12 @@ const pctAxis={type:'value',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:f
 function renderCharts(){
   if(!hasEC()||!charts.ch1)return;
   const allNames=state.activities.map(a=>a.name);
-  const data1=state.activities.map(a=>{const isU=a.type==='utc';const o=curP().d[a.code]||{};let v=isU?num(o.scan_cnt):num(o.hcp_pv);if(scaleMode==='log'&&(v==null||v<=0))v=null;return {value:v,itemStyle:{color:isU?GOLD:RED}};});
-  charts.ch1.setOption({grid:{left:58,right:18,top:24,bottom:70},tooltip:{trigger:'axis',valueFormatter:v=>v==null?'—':Math.round(v).toLocaleString()},
+  const data1=state.activities.map(a=>{const isU=a.type==='utc';const o=curP().d[a.code]||{};const raw=isU?num(o.scan_cnt):num(o.hcp_pv);const value=scaleMode==='log'?(raw!=null&&raw>0?Math.log10(raw):null):raw;return {value,rawValue:raw,itemStyle:{color:isU?GOLD:RED}};});
+  const logTick=v=>{const n=Math.pow(10,v);if(n>=1e8)return (n/1e8).toFixed(n>=1e9?0:1).replace(/\.0$/,'')+'亿';if(n>=1e4)return (n/1e4).toFixed(n>=1e5?0:1).replace(/\.0$/,'')+'万';return Math.round(n).toLocaleString();};
+  charts.ch1.setOption({grid:{left:58,right:18,top:24,bottom:70},tooltip:{trigger:'axis',formatter:ps=>{if(!ps||!ps.length)return '';const p=ps[0],raw=p.data&&p.data.rawValue;return esc(p.axisValueLabel||p.axisValue)+'<br>'+p.marker+(raw==null?'—':Math.round(raw).toLocaleString());}},
     xAxis:{type:'category',data:allNames,...axisStyle,axisLabel:rot},
-    yAxis:scaleMode==='log'?{type:'log',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{color:'#6B7280',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}}:{type:'value',...axisStyle,splitLine:{lineStyle:{color:'#F0F0F2'}}},
-    series:[{type:'bar',data:data1,barMaxWidth:40,itemStyle:{borderRadius:[4,4,0,0]},label:{show:true,position:'top',formatter:p=>p.value==null?'':Math.round(p.value).toLocaleString(),color:'#6B7280',fontSize:9}}]},true);
+    yAxis:scaleMode==='log'?{type:'value',min:0,axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:logTick,color:'#6B7280',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}}:{type:'value',...axisStyle,splitLine:{lineStyle:{color:'#F0F0F2'}}},
+    series:[{type:'bar',data:data1,barMaxWidth:40,itemStyle:{borderRadius:[4,4,0,0]},label:{show:true,position:'top',formatter:p=>p.data&&p.data.rawValue!=null?Math.round(p.data.rawValue).toLocaleString():'',color:'#6B7280',fontSize:9}}]},true);
   const bn=BACT().map(a=>a.name),bc=BACT().map(a=>rowCalc(a.code));
   charts.ch2.setOption({grid:{left:50,right:16,top:24,bottom:70},tooltip:{trigger:'axis',valueFormatter:v=>v==null?'—':(v*100).toFixed(1)+'%'},
     xAxis:{type:'category',data:bn,...axisStyle,axisLabel:rot},yAxis:pctAxis,
@@ -870,8 +871,8 @@ function applyViewOnly(){
   if(!VIEW_ONLY)return;
   document.querySelectorAll('.edit-only').forEach(el=>el.style.display='none');
   document.querySelectorAll('.btn').forEach(el=>el.style.display='none');
-  const sub=document.querySelector('.hdr .sub');const last=state.periods[state.periods.length-1];
-  if(sub)sub.textContent='只读快照 · 数据截至 '+(last?last.date:'')+'（本页仅供查看，不可编辑）';
+  const sub=document.querySelector('.hdr .sub');const current=curP();
+  if(sub)sub.textContent='只读快照 · 数据截至 '+(current?current.date:'')+'（本页仅供查看，不可编辑）';
 }
 function exportShare(){
   var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
