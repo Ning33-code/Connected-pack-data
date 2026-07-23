@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Connected Pack · 流量看板</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js"></script>
 <script>
 /*
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -210,6 +211,7 @@ details summary::before{content:'▸ ';color:var(--red)}details[open] summary::b
     <label class="btn btn-r edit-only" style="cursor:pointer">↑ 导入Excel<input type="file" id="impx" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this)"></label>
     <button class="btn" onclick="exportCSV()">↓ 导出CSV(全期)</button>
     <button class="btn" onclick="exportPDF()">⇩ 导出PDF</button>
+    <button class="btn btn-r view-available" id="pptx-btn" onclick="exportEditablePPTX()">⇩ 下载可编辑PPTX</button>
     <button class="btn btn-d edit-only" onclick="exportShare()">⤓ 导出可分享看板</button>
     <button class="btn btn-r edit-only" id="pub-btn" onclick="publish()">🚀 发布上线</button>
     <button class="btn edit-only" onclick="loadLive()">↻ 载入线上</button>
@@ -870,7 +872,7 @@ function exportCSV(){
 function applyViewOnly(){
   if(!VIEW_ONLY)return;
   document.querySelectorAll('.edit-only').forEach(el=>el.style.display='none');
-  document.querySelectorAll('.btn').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.btn:not(.view-available)').forEach(el=>el.style.display='none');
   const sub=document.querySelector('.hdr .sub');const current=curP();
   if(sub)sub.textContent='只读快照 · 数据截至 '+(current?current.date:'')+'（本页仅供查看，不可编辑）';
 }
@@ -934,6 +936,75 @@ function exportPDF(){
   try{window.dispatchEvent(new Event('resize'));}catch(e){}
   toast('正在唤起打印 · 请在弹窗中选“另存为 PDF”，方向选“横向”');
   setTimeout(function(){window.print();},450);
+}
+
+// ---------- 可编辑 PPTX（PowerPoint 原生文字 / 形状 / 图表） ----------
+function pptShort(s,n){s=String(s||'—');return s.length>n?s.slice(0,n-1)+'…':s;}
+function pptBig(n){if(n==null||!isFinite(n))return '—';if(Math.abs(n)>=1e8)return (n/1e8).toFixed(2).replace(/0+$/,'').replace(/\.$/,'')+' 亿';if(Math.abs(n)>=1e4)return (n/1e4).toFixed(1).replace(/\.0$/,'')+' 万';return Math.round(n).toLocaleString();}
+function pptPct(n){return n==null?'—':(n*100).toFixed(1)+'%';}
+function pptPP(n){return n==null?'—':(n>=0?'+':'')+(n*100).toFixed(1)+' pp';}
+function pptData(){
+  const p=curP(),bottle=BACT().map(a=>{const c=rowCalc(a.code);return {code:a.code,name:a.name||a.code,sku:a.sku||'',type:'瓶身码',value:c.cp_pv,share:c.share,partCp:c.partCp,partOth:c.partOth,lead:c.lead};});
+  const utc=UACT().map(a=>{const o=p.d[a.code]||{};return {name:a.name||a.code,sku:a.sku||'',type:'UTC',value:num(o.scan_cnt),people:num(o.scan_ppl)};});
+  let cp=0,homeTotal=0,scan=0,leads=[];
+  bottle.forEach(x=>{if(x.value!=null){cp+=x.value;const o=p.d[x.code]||{};homeTotal+=x.value+(num(o.hoth_pv)||0);}if(x.lead!=null)leads.push(x.lead);});
+  utc.forEach(x=>{if(x.value!=null)scan+=x.value;});
+  const mau=(state.mau||[]).filter(x=>x&&x.month).slice().sort((a,b)=>a.month<b.month?-1:1);
+  return {date:p.date,bottle,utc,cp,scan,total:cp+scan,overall:homeTotal>0?cp/homeTotal:null,avgLead:leads.length?leads.reduce((a,b)=>a+b,0)/leads.length:null,mau};
+}
+function buildEditablePPTX(){
+  if(typeof PptxGenJS==='undefined')throw new Error('PPTX 组件未加载，请检查网络后刷新');
+  const D=pptData(),pptx=new PptxGenJS();
+  pptx.layout='LAYOUT_WIDE';pptx.author='Connected Pack Dashboard';pptx.company='Coca-Cola';pptx.subject='Connected Pack 流量汇报';pptx.title='Connected Pack 流量汇报 · '+D.date;pptx.lang='zh-CN';
+  const S=pptx.ShapeType,C=pptx.ChartType,F='Microsoft YaHei',R='F40009',K='1B1B1F',G='E8A33D',M='6B7280',L='E8E8EA',W='FFFFFF';
+  const addText=(sl,txt,opt)=>sl.addText(String(txt),Object.assign({fontFace:F,color:K,margin:0,breakLine:false,fit:'shrink'},opt||{}));
+  const addTop=(sl,title,kicker)=>{sl.background={color:W};sl.addShape(S.rect,{x:0,y:0,w:13.333,h:.12,line:{color:R,transparency:100},fill:{color:R}});if(kicker)addText(sl,kicker,{x:.62,y:.3,w:4.8,h:.24,fontSize:16,bold:true,color:R,charSpacing:1});addText(sl,title,{x:.62,y:.6,w:12.05,h:.55,fontSize:35,bold:true});sl.addShape(S.line,{x:.62,y:1.27,w:12.05,h:0,line:{color:L,pt:1}});};
+  const addFoot=(sl,n)=>{addText(sl,'Connected Pack · 数据截至 '+D.date,{x:.62,y:7.12,w:5.2,h:.2,fontSize:10,color:'9CA3AF'});addText(sl,String(n).padStart(2,'0'),{x:12.1,y:7.08,w:.55,h:.2,fontSize:10,color:'9CA3AF',align:'right'});};
+  const addKpi=(sl,x,label,value,color)=>{addText(sl,label,{x,y:1.78,w:2.45,h:.24,fontSize:16,color:M,bold:true});addText(sl,value,{x,y:2.08,w:2.45,h:.58,fontSize:28,bold:true,color:color||K});};
+  const chartBase={showTitle:false,showLegend:false,showValue:true,dataLabelPosition:'outEnd',dataLabelColor:M,dataLabelFontFace:F,dataLabelFontSize:10,catAxisLabelFontFace:F,catAxisLabelFontSize:11,catAxisLabelColor:M,valAxisLabelFontFace:F,valAxisLabelFontSize:10,valAxisLabelColor:M,showCatName:false,showSerName:false,showPercent:false,showValue:true,showBorder:false};
+
+  // 1 封面
+  let sl=pptx.addSlide();sl.background={color:K};sl.addShape(S.rect,{x:0,y:0,w:.2,h:7.5,line:{color:R,transparency:100},fill:{color:R}});sl.addShape(S.ellipse,{x:.72,y:.7,w:.62,h:.62,line:{color:R,transparency:100},fill:{color:R}});addText(sl,'K',{x:.72,y:.84,w:.62,h:.24,fontSize:22,bold:true,color:W,align:'center'});addText(sl,'CONNECTED PACK',{x:.72,y:2.0,w:5.8,h:.3,fontSize:18,bold:true,color:G,charSpacing:2.2});addText(sl,'流量表现与活动洞察',{x:.72,y:2.45,w:10.8,h:.86,fontSize:50,bold:true,color:W});addText(sl,'自动生成的可编辑汇报版',{x:.76,y:3.52,w:5.8,h:.35,fontSize:22,color:'D1D5DB'});sl.addShape(S.line,{x:.76,y:5.66,w:2.05,h:0,line:{color:G,pt:3}});addText(sl,'数据截至 '+D.date,{x:.76,y:5.9,w:4.5,h:.32,fontSize:18,bold:true,color:W});addText(sl,'图表与数据均可在 PowerPoint 中继续编辑',{x:.76,y:6.34,w:6.8,h:.24,fontSize:16,color:'9CA3AF'});
+
+  // 2 规模总览
+  sl=pptx.addSlide();const utcMix=D.total>0?D.scan/D.total:null;const leadMsg=D.avgLead==null?'互动质量暂无完整数据':D.avgLead>=0?'瓶身码互动率平均领先其他渠道 '+pptPP(D.avgLead):'瓶身码互动率平均落后其他渠道 '+pptPP(Math.abs(D.avgLead));addTop(sl,'Connected Pack 累计流量达 '+pptBig(D.total),'EXECUTIVE SNAPSHOT');addKpi(sl,.68,'Connected Pack 总流量',pptBig(D.total),K);addKpi(sl,3.32,'瓶身码整体流量',pptBig(D.cp),R);addKpi(sl,5.96,'UTC 累计扫盖次数',pptBig(D.scan),G);addKpi(sl,8.6,'瓶身码流量占比',pptPct(D.overall),K);sl.addShape(S.line,{x:.65,y:2.92,w:11.98,h:0,line:{color:L,pt:1}});
+  addText(sl,utcMix==null?'当前期次暂无规模数据':'UTC 贡献 Connected Pack 总流量的 '+pptPct(utcMix),{x:.72,y:3.35,w:6.15,h:.52,fontSize:28,bold:true,color:K});
+  addText(sl,leadMsg,{x:.72,y:4.03,w:6.15,h:.42,fontSize:20,bold:true,color:D.avgLead!=null&&D.avgLead>=0?R:M});
+  const topB=D.bottle.filter(x=>x.value!=null).sort((a,b)=>b.value-a.value)[0];addText(sl,topB?'瓶身码活动流量最高：'+topB.name+'（'+pptBig(topB.value)+'）':'瓶身码活动暂无流量数据',{x:.72,y:4.62,w:6.15,h:.62,fontSize:18,color:M,breakLine:true});
+  const mixVals=D.total>0?[D.cp,D.scan]:[1,0];sl.addChart(C.doughnut,[{name:'流量构成',labels:['瓶身码','UTC'],values:mixVals}],{x:7.55,y:3.18,w:4.45,h:3.15,holeSize:68,showLegend:true,legendPos:'b',legendFontFace:F,legendFontSize:13,showPercent:true,showValue:false,dataLabelPosition:'bestFit',dataLabelColor:K,dataLabelFontFace:F,dataLabelFontSize:13,chartColors:[R,G],showTitle:false,showBorder:false});addFoot(sl,2);
+
+  // 3 活动流量：瓶身码 / UTC 分轴
+  sl=pptx.addSlide();addTop(sl,'分轴看活动流量，避免量级差异掩盖小活动','CAMPAIGN TRAFFIC');const bs=D.bottle.filter(x=>x.value!=null&&x.value>0).sort((a,b)=>a.value-b.value);const us=D.utc.filter(x=>x.value!=null&&x.value>0).sort((a,b)=>b.value-a.value);
+  addText(sl,'瓶身码访问 PV',{x:.68,y:1.48,w:7.55,h:.28,fontSize:20,bold:true,color:R});addText(sl,'UTC 扫盖次数 · 独立呈现',{x:8.72,y:1.48,w:3.9,h:.28,fontSize:20,bold:true,color:G});
+  if(bs.length)sl.addChart(C.bar,[{name:'瓶身码访问 PV',labels:bs.map(x=>pptShort(x.name,18)),values:bs.map(x=>x.value)}],Object.assign({},chartBase,{x:.55,y:1.82,w:7.85,h:4.96,barDir:'bar',chartColors:[R],dataLabelFormatCode:'#,##0',valAxisLabelFormatCode:'0.0,,\"M\"',showValue:true}));
+  else addText(sl,'暂无瓶身码流量数据',{x:.68,y:3.5,w:7.5,h:.5,fontSize:22,color:M,align:'center'});
+  if(us.length){us.slice(0,3).forEach((x,i)=>{const y=2.05+i*1.55;sl.addShape(S.line,{x:8.68,y:y-.14,w:.42,h:0,line:{color:G,pt:4}});addText(sl,pptShort(x.name,18),{x:9.22,y:y-.27,w:3.15,h:.28,fontSize:18,bold:true,color:M});addText(sl,pptBig(x.value),{x:9.22,y:y+.13,w:3.15,h:.52,fontSize:30,bold:true,color:K});if(i<Math.min(us.length,3)-1)sl.addShape(S.line,{x:8.68,y:y+1.02,w:3.7,h:0,line:{color:L,pt:1}});});if(us.length>1){const ratio=us[us.length-1].value>0?us[0].value/us[us.length-1].value:null;addText(sl,ratio?'最大与最小活动相差约 '+Math.round(ratio).toLocaleString()+' 倍':'各活动分别呈现绝对值',{x:8.7,y:5.65,w:3.75,h:.62,fontSize:16,bold:true,color:G,breakLine:true});}addText(sl,'不共用坐标轴，避免小活动不可见',{x:8.7,y:6.27,w:3.75,h:.28,fontSize:16,color:M});}
+  else addText(sl,'暂无 UTC 流量数据',{x:8.65,y:3.5,w:3.85,h:.5,fontSize:22,color:M,align:'center'});addFoot(sl,3);
+
+  // 4 流量份额与互动质量
+  sl=pptx.addSlide();addTop(sl,'流量份额回答“从哪里来”，互动率回答“质量如何”','TRAFFIC QUALITY');const validShare=D.bottle.filter(x=>x.share!=null).sort((a,b)=>a.share-b.share);const validPart=D.bottle.filter(x=>x.partCp!=null||x.partOth!=null).sort((a,b)=>(a.partCp||0)-(b.partCp||0));
+  addText(sl,'瓶身码流量占比',{x:.68,y:1.48,w:5.65,h:.28,fontSize:20,bold:true,color:R});addText(sl,'互动率：瓶身码 vs 其他渠道',{x:6.78,y:1.48,w:5.75,h:.28,fontSize:20,bold:true,color:K});
+  if(validShare.length)sl.addChart(C.bar,[{name:'瓶身码流量占比',labels:validShare.map(x=>pptShort(x.name,16)),values:validShare.map(x=>x.share)}],Object.assign({},chartBase,{x:.52,y:1.82,w:5.82,h:4.92,barDir:'bar',chartColors:[R],dataLabelFormatCode:'0.0%',valAxisLabelFormatCode:'0%',valAxisMinVal:0,valAxisMaxVal:1,showValue:true}));
+  else addText(sl,'暂无流量占比数据',{x:.68,y:3.5,w:5.45,h:.5,fontSize:22,color:M,align:'center'});
+  if(validPart.length)sl.addChart(C.bar,[{name:'瓶身码互动率',labels:validPart.map(x=>pptShort(x.name,16)),values:validPart.map(x=>x.partCp||0)},{name:'其他渠道互动率',labels:validPart.map(x=>pptShort(x.name,16)),values:validPart.map(x=>x.partOth||0)}],Object.assign({},chartBase,{x:6.55,y:1.82,w:6.17,h:4.92,barDir:'bar',barGrouping:'clustered',showLegend:true,legendPos:'b',legendFontFace:F,legendFontSize:12,chartColors:[R,'666666'],dataLabelFormatCode:'0.0%',valAxisLabelFormatCode:'0%',valAxisMinVal:0,showValue:false}));
+  else addText(sl,'暂无互动率数据',{x:6.75,y:3.5,w:5.7,h:.5,fontSize:22,color:M,align:'center'});addFoot(sl,4);
+
+  // 5 MAU 贡献；若无 MAU 则显示历史瓶身码占比
+  sl=pptx.addSlide();const mau=D.mau.filter(x=>(x.wx_mau>0&&x.wx_label!=null)||(x.ali_mau>0&&x.ali_chunyue!=null));
+  if(mau.length){addTop(sl,'瓶身码对各端 MAU 的贡献可持续追踪','MAU CONTRIBUTION');const labels=mau.map(x=>x.month);const wx=mau.map(x=>x.wx_mau>0&&x.wx_label!=null?x.wx_label/x.wx_mau:0),ali=mau.map(x=>x.ali_mau>0&&x.ali_chunyue!=null?x.ali_chunyue/x.ali_mau:0);sl.addChart(C.line,[{name:'微信瓶身码贡献',labels,values:wx},{name:'支付宝纯悦贡献',labels,values:ali}],{x:.72,y:1.62,w:8.15,h:4.9,showTitle:false,showLegend:true,legendPos:'b',legendFontFace:F,legendFontSize:13,chartColors:[R,G],lineSize:3,showValue:true,dataLabelFormatCode:'0.0%',dataLabelColor:M,dataLabelFontFace:F,dataLabelFontSize:11,catAxisLabelFontFace:F,catAxisLabelFontSize:12,catAxisLabelColor:M,valAxisLabelFontFace:F,valAxisLabelFontSize:11,valAxisLabelColor:M,valAxisLabelFormatCode:'0.0%',showBorder:false});const lm=mau[mau.length-1],wxs=lm.wx_mau>0&&lm.wx_label!=null?lm.wx_label/lm.wx_mau:null,alis=lm.ali_mau>0&&lm.ali_chunyue!=null?lm.ali_chunyue/lm.ali_mau:null;addText(sl,'最新月份',{x:9.35,y:1.95,w:2.8,h:.25,fontSize:16,color:M,bold:true});addText(sl,lm.month,{x:9.35,y:2.28,w:2.8,h:.55,fontSize:32,bold:true});addText(sl,'微信贡献  '+pptPct(wxs),{x:9.35,y:3.25,w:3.1,h:.34,fontSize:20,bold:true,color:R});addText(sl,'支付宝贡献  '+pptPct(alis),{x:9.35,y:3.85,w:3.1,h:.34,fontSize:20,bold:true,color:G});}
+  else{addTop(sl,'瓶身码流量占比按期次持续追踪','PERIOD TREND');const ps=state.periods.map(p=>({date:p.date,value:periodOverallShare(p)})).filter(x=>x.value!=null).sort((a,b)=>a.date<b.date?-1:1);if(ps.length)sl.addChart(C.line,[{name:'瓶身码流量占比',labels:ps.map(x=>x.date),values:ps.map(x=>x.value)}],{x:.72,y:1.72,w:11.85,h:4.8,showTitle:false,showLegend:false,chartColors:[R],lineSize:3,showValue:true,dataLabelFormatCode:'0.0%',dataLabelColor:M,dataLabelFontFace:F,dataLabelFontSize:12,catAxisLabelFontFace:F,catAxisLabelFontSize:12,valAxisLabelFormatCode:'0%',valAxisMinVal:0,showBorder:false});else addText(sl,'暂无趋势数据',{x:1,y:3.3,w:11.2,h:.5,fontSize:24,color:M,align:'center'});}addFoot(sl,5);
+
+  // 6 明细附录
+  sl=pptx.addSlide();addTop(sl,'关键明细保留在附录，便于复核与二次编辑','APPENDIX');const head=['活动','类型','流量','瓶身码占比','瓶身码互动率','其他互动率'];const rows=[head].concat(D.bottle.map(x=>[pptShort(x.name,22),'瓶身码',x.value==null?'—':Math.round(x.value).toLocaleString(),pptPct(x.share),pptPct(x.partCp),pptPct(x.partOth)]),D.utc.map(x=>[pptShort(x.name,22),'UTC',x.value==null?'—':Math.round(x.value).toLocaleString(),'—','—','—']));
+  sl.addTable(rows,{x:.62,y:1.52,w:12.08,h:4.95,border:{type:'solid',pt:.6,color:'E5E7EB'},fill:W,color:K,fontFace:F,fontSize:16,margin:.06,rowH:.38,colW:[3.0,1.1,2.15,1.85,1.95,1.95],bold:false,autoFit:false,breakLine:false});
+  sl.addText('右键图表 → 编辑数据；文字、数字、颜色和位置均可直接修改。',{x:.65,y:6.66,w:9.5,h:.28,fontFace:F,fontSize:16,bold:true,color:R,margin:0});addFoot(sl,6);
+  return pptx;
+}
+async function exportEditablePPTX(){
+  const btn=document.getElementById('pptx-btn');if(btn){btn.disabled=true;btn.dataset.old=btn.textContent;btn.textContent='PPTX 生成中…';}
+  try{const pptx=buildEditablePPTX();await pptx.writeFile({fileName:'Connected_Pack_流量汇报_'+curP().date+'_可编辑.pptx',compression:true});toast('已下载可编辑 PPTX');}
+  catch(e){console.error(e);alert('PPTX 生成失败：'+e.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.old||'⇩ 下载可编辑PPTX';}}
 }
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
