@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connected Pack Landing Calendar · Read Only</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#F40009;--red-dark:#C90008;--red-soft:#FFF0F1;--ink:#171513;--muted:#6F6A65;
+  --hint:#A39D97;--line:#E8E4DF;--line-strong:#D1CBC5;--paper:#FFF;--canvas:#F4F2EF;
+  --shadow:0 7px 28px rgba(31,25,20,.06);--sans:Unity,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+body{font-family:var(--sans);background:var(--canvas);color:var(--ink);font-size:13px;min-height:100vh}
+button,input,select{font:inherit}
+.top-rule{height:5px;background:var(--red)}
+.shell{max-width:1540px;margin:0 auto;padding:26px 28px 48px}
+.hero{background:#090909;color:#fff;border-radius:12px 12px 0 0;padding:27px 30px;min-height:160px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-55px;top:-82px;width:250px;height:250px;border:38px solid rgba(244,0,9,.23);border-radius:50%}
+.mark{width:34px;height:34px;border:2px solid var(--red);border-radius:5px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;flex:none}
+.mark i{background:var(--red);border-radius:1px}.mark i:last-child{background:transparent}
+.hero-copy{min-width:0}.eyebrow{font-size:10px;letter-spacing:1.5px;color:#FF6A70;font-weight:800;margin-bottom:5px}
+h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11px;color:#BEB9B5;margin-top:7px}
+.hero-bottle{position:absolute;right:12%;height:190px;top:-2px;z-index:2;filter:drop-shadow(0 10px 20px rgba(0,0,0,.32));pointer-events:none}
+.readonly{margin-left:auto;margin-right:31%;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:5px 11px;font-size:10px;font-weight:800;letter-spacing:.8px;white-space:nowrap;z-index:3}
+.panel{background:var(--paper);border-radius:0 0 12px 12px;box-shadow:var(--shadow);padding:18px 20px 24px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));border:1px solid var(--line);margin-bottom:16px}
+.metric{padding:13px 16px;border-right:1px solid var(--line)}.metric:last-child{border-right:0}
+.metric-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.45px}
+.metric-val{font-size:22px;font-weight:850;margin-top:2px}.metric-val.red{color:var(--red)}.metric-sub{font-size:10px;color:var(--hint);margin-top:1px}
+.filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 12px;background:#F7F5F2;border:1px solid var(--line);border-radius:8px}
+.filters input,.filters select{height:32px;border:1px solid var(--line-strong);background:#fff;border-radius:5px;padding:0 10px;outline:none;color:var(--ink)}
+.filters input{width:230px}.filters input:focus,.filters select:focus{border-color:var(--red)}
+.year-tabs{display:flex;background:#EAE6E2;padding:2px;border-radius:6px}
+.year-tabs button{height:28px;border:0;background:transparent;color:var(--muted);padding:0 10px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700}
+.year-tabs button.active{background:#111;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.refresh{margin-left:auto;height:32px;border:1px solid #111;background:#111;color:#fff;border-radius:5px;padding:0 12px;cursor:pointer;font-size:11px;font-weight:700}
+.refresh:hover{background:var(--red);border-color:var(--red)}
+.status{padding:9px 2px 4px;color:var(--hint);font-size:10px;display:flex;justify-content:space-between;gap:12px}
+.legend{display:flex;flex-wrap:wrap;gap:7px 12px;padding:9px 0 12px;border-bottom:1px solid var(--line)}
+.legend-item{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:10px;cursor:pointer}.legend-item.dim{opacity:.3}
+.swatch{width:9px;height:9px;border-radius:2px}
+.group{position:relative;border:1px solid var(--line-strong);border-radius:9px;overflow:hidden;background:#fff;margin-top:14px;box-shadow:0 3px 14px rgba(25,20,17,.035)}
+.group:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--red);z-index:4}
+.group-head{min-height:56px;background:#F1EFEC;display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--line)}
+.group-head.can-collapse{cursor:pointer;user-select:none}.group-head.can-collapse:hover{background:#EBE8E4}
+.fold-arrow{width:14px;color:var(--muted);font-size:10px;transition:transform .16s}.fold-arrow.open{transform:rotate(90deg)}
+.year-badge{background:#111;color:#fff;border-radius:3px;padding:3px 8px;font-size:11px;font-weight:850}.year-badge.current{background:var(--red)}
+.group-title{font-size:14px;font-weight:850}.group-count{font-size:11px;color:var(--muted)}.group-count strong{font-size:15px;color:var(--red);margin-right:3px}
+.today-pill{display:flex;align-items:center;gap:5px;background:var(--red-soft);border:1px solid #F6B7BA;color:var(--red);padding:3px 8px;border-radius:99px;font-size:10px;font-weight:750}
+.today-pill:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red)}
+.group-note{margin-left:auto;color:var(--hint);font-size:10px}
+.gantt{overflow-x:auto}.gantt-head,.gantt-row{display:flex;min-width:850px}.gantt-head{background:#FAF9F7;border-bottom:2px solid var(--line)}
+.gantt-row{border-bottom:1px solid var(--line)}.gantt-row:last-child{border-bottom:0}.gantt-row:hover{background:#FBFAF8}
+.label{width:220px;min-width:220px;padding:7px 11px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.src{font-size:11px;font-weight:800;color:var(--red)}.sku{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.track{min-width:630px;flex:1;height:34px;position:relative;background:#fff}
+.month-track{height:24px;background:none}.month{position:absolute;top:0;height:24px;padding:4px 5px;border-right:1px solid var(--line);font-size:9px;color:var(--muted)}
+.seg{position:absolute;top:5px;height:24px;border-radius:3px;padding:0 5px;display:flex;align-items:center;font-size:9px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;color:#302B27;min-width:2px}
+.seg.pending{opacity:.58;border:1px dashed rgba(65,57,50,.38);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.52) 0,rgba(255,255,255,.52) 6px,rgba(255,255,255,.08) 6px,rgba(255,255,255,.08) 12px)}
+.today-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(244,0,9,.62);z-index:3;pointer-events:none}
+.empty{padding:50px 20px;text-align:center;color:var(--hint)}.empty b{display:block;color:var(--ink);font-size:14px;margin-bottom:5px}
+.tooltip{position:fixed;z-index:20;background:#111;color:#fff;border-radius:7px;padding:10px 12px;font-size:11px;line-height:1.7;box-shadow:0 8px 28px rgba(0,0,0,.2);pointer-events:none}
+@media(max-width:760px){.shell{padding:14px 10px 32px}.hero{padding:18px;min-height:138px}.hero-bottle{right:1%;height:165px;top:-1px;opacity:.68}.readonly{display:none}.panel{padding:12px}.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.metric:last-child{border-bottom:0}.filters input{width:100%}.refresh{margin-left:0}.group-note{display:none}.label{width:175px;min-width:175px}}
+</style>
+</head>
+<body>
+<div class="top-rule"></div>
+<main class="shell">
+  <section class="hero">
+    <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <div class="hero-copy">
+      <div class="eyebrow">UAD · CONNECTED PACK</div>
+      <h1>Connect Pack · Landing Calendar</h1>
+      <div class="hero-sub">让每一瓶产品，都成为连接消费者数字体验的入口</div>
+    </div>
+    <img class="hero-bottle" src="assets/coke-bottle.png" onerror="this.onerror=null;this.src='../assets/coke-bottle.png'" alt="" aria-hidden="true">
+    <span class="readonly">CLIENT VIEW · READ ONLY</span>
+  </section>
+  <section class="panel">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Calendar SKU</div><div id="m-sku" class="metric-val red">—</div><div class="metric-sub">当前筛选范围</div></div>
+      <div class="metric"><div class="metric-label">Activity Codes</div><div id="m-code" class="metric-val">—</div><div class="metric-sub">2026 年落地活动</div></div>
+      <div class="metric"><div class="metric-label">Data Version</div><div id="m-date" class="metric-val" style="font-size:16px;margin-top:7px">正在读取</div><div class="metric-sub">团队最新快照</div></div>
+    </div>
+    <div class="filters">
+      <input id="q" type="search" placeholder="搜索 SKU、品牌或 utm_source">
+      <select id="brand"><option value="">全部品牌</option></select>
+      <select id="code"><option value="">全部活动</option></select>
+      <select id="sort"><option value="date">按产码时间</option><option value="brand">按品牌</option></select>
+      <div class="year-tabs" aria-label="产码年份筛选">
+        <button data-year="" class="active">全部</button><button data-year="2026">2026</button><button data-year="2025">2025</button>
+      </div>
+      <button class="refresh" id="refresh">刷新数据</button>
+    </div>
+    <div class="status"><span id="status">正在读取团队数据…</span><span>实色 = 已发生 · 虚色 = 待切码计划 · 筛选不会修改记录</span></div>
+    <div id="legend" class="legend"></div>
+    <div id="calendar"></div>
+  </section>
+</main>
+<script src="calendar-data.js"></script>
+<script src="/config.js"></script>
+<script>
+(function(){
+  'use strict';
+  var data={recs:[],cuts:[],camps:[],savedAt:''};
+  var selectedYear='',selectedLegend='',collapsedYears={2026:false,2025:true};
+  var palette=['#F2A17E','#EF6A70','#C8C5C1','#F6C35B','#8FC9C2','#B7A6D7','#9EB8D7','#D8A7B1','#A7C48B','#E2B891'];
+  var $=function(id){return document.getElementById(id);};
+  function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function parseDate(v){var m=String(v||'').trim().replace(/[\/.]/g,'-').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+  function sourceRec(src){return data.recs.find(function(r){return String(r.utm_source||'').trim()===src;})||null;}
+  function prodYear(src){var r=sourceRec(src),y=parseInt(String(r&&r.date||'').slice(0,4),10);return y===2025||y===2026?y:0;}
+  function color(code){var h=0,s=String(code||'');for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return palette[h%palette.length];}
+  function codeEvents(){
+    var out={};
+    data.cuts.forEach(function(c){var s=String(c.utm_source||'').trim();if(!s||!parseDate(c.cut_date))return;(out[s]||(out[s]=[])).push(c);});
+    return out;
+  }
+  function segments(src,bySource){
+    var start=new Date(2026,0,1),end=new Date(2026,11,31),days=365;
+    var ev=(bySource[src]||[]).slice().sort(function(a,b){return parseDate(a.cut_date)-parseDate(b.cut_date);}),out=[];
+    for(var i=0;i<ev.length;i++){
+      var s=parseDate(ev[i].cut_date),e=i<ev.length-1?parseDate(ev[i+1].cut_date):new Date(2027,0,1);
+      var a=Math.max(0,Math.ceil((s-start)/864e5)),b=Math.min(days,Math.ceil((e-start)/864e5));
+      if(b<=0||a>=days||b<=a)continue;
+      var today=new Date();today.setHours(0,0,0,0);
+      out.push({code:ev[i].code||'—',start:ev[i].cut_date,end:i<ev.length-1?ev[i+1].cut_date:'持续中',left:a/days*100,width:(b-a)/days*100,pending:s>today});
+    }
+    return out;
+  }
+  function filtered(){
+    var by=codeEvents(),q=$('q').value.trim().toLowerCase(),brand=$('brand').value,code=$('code').value;
+    var srcs=Object.keys(by).filter(function(src){
+      var r=sourceRec(src),y=prodYear(src),sg=segments(src,by);
+      if(!r||!y||!sg.length)return false;
+      if(selectedYear&&String(y)!==selectedYear)return false;
+      if(brand&&r.brand!==brand)return false;
+      if(code&&!sg.some(function(x){return x.code===code;}))return false;
+      if(selectedLegend&&!sg.some(function(x){return x.code===selectedLegend;}))return false;
+      var hay=[src,r.brand,r.sku_info,r.flavor,r.sku,r.pkg].join(' ').toLowerCase();
+      return !q||hay.includes(q);
+    });
+    srcs.sort(function(a,b){
+      var ra=sourceRec(a),rb=sourceRec(b);
+      if($('sort').value==='brand')return String(ra.brand||'').localeCompare(String(rb.brand||''))||a.localeCompare(b);
+      var da=parseDate(ra.date),db=parseDate(rb.date);
+      var ta=da?da.getTime():Number.MAX_SAFE_INTEGER,tb=db?db.getTime():Number.MAX_SAFE_INTEGER;
+      return ta-tb||a.localeCompare(b);
+    });
+    return{srcs:srcs,by:by};
+  }
+  function monthHeader(){
+    var s='<div class="gantt-head"><div class="label"></div><div class="track month-track">';
+    for(var i=0;i<12;i++)s+='<span class="month" style="left:'+(i*100/12)+'%;width:'+(100/12)+'%">'+(i+1)+'月</span>';
+    var now=new Date();
+    if(now.getFullYear()===2026){var day=Math.ceil((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(2026,0,1))/864e5);s+='<i class="today-line" style="left:'+(day/365*100)+'%"></i>';}
+    return s+'</div></div>';
+  }
+  function render(){
+    var f=filtered(),codes=new Set();
+    f.srcs.forEach(function(src){segments(src,f.by).forEach(function(x){codes.add(x.code);});});
+    $('m-sku').textContent=f.srcs.length;$('m-code').textContent=codes.size;
+    $('legend').innerHTML=Array.from(codes).sort().map(function(c){return '<span class="legend-item'+(selectedLegend&&selectedLegend!==c?' dim':'')+'" data-code="'+esc(c)+'"><i class="swatch" style="background:'+color(c)+'"></i>'+esc(c)+'</span>';}).join('');
+    Array.prototype.forEach.call($('legend').querySelectorAll('.legend-item'),function(el){el.onclick=function(){selectedLegend=selectedLegend===el.dataset.code?'':el.dataset.code;render();};});
+    var html='';
+    [2026,2025].forEach(function(y){
+      var list=f.srcs.filter(function(src){return prodYear(src)===y;});if(!list.length)return;
+      var now=new Date(),pill=now.getFullYear()===2026?'<span class="today-pill">今天 · '+(now.getMonth()+1)+'月'+now.getDate()+'日</span>':'';
+      var canCollapse=!selectedYear,collapsed=canCollapse&&collapsedYears[y];
+      html+='<section class="group"><header class="group-head'+(canCollapse?' can-collapse':'')+'"'+(canCollapse?' onclick="toggleClientYear('+y+')" title="点击'+(collapsed?'展开':'收起')+'"':'')+'>'+(canCollapse?'<span class="fold-arrow'+(collapsed?'':' open')+'">▶</span>':'')+'<span class="year-badge '+(y===2026?'current':'')+'">'+y+'</span><span class="group-title">'+y+'年产码SKU</span><span class="group-count"><strong>'+list.length+'</strong> 个 SKU / utm_source</span>'+pill+'<span class="group-note">'+(canCollapse?'点击标题可展开 / 收起 · ':'')+'横轴：2026 年 1–12 月</span></header><div class="gantt" style="'+(collapsed?'display:none':'')+'">'+monthHeader();
+      list.forEach(function(src){
+        var r=sourceRec(src),sg=segments(src,f.by);
+        html+='<div class="gantt-row"><div class="label" title="'+esc((r.sku_info||''))+'"><span class="src">'+esc(src)+'</span><span class="sku">'+esc((r.brand||'')+(r.sku_info?' · '+r.sku_info:''))+'</span></div><div class="track">';
+        sg.forEach(function(x){html+='<span class="seg'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+'">'+esc(x.code)+'</span>';});
+        var n=new Date();if(n.getFullYear()===2026){var d=Math.ceil((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(2026,0,1))/864e5);html+='<i class="today-line" style="left:'+(d/365*100)+'%"></i>';}
+        html+='</div></div>';
+      });
+      html+='</div></section>';
+    });
+    $('calendar').innerHTML=html||'<div class="empty"><b>没有匹配的 Calendar 数据</b>请调整搜索或筛选条件</div>';
+    Array.prototype.forEach.call(document.querySelectorAll('.seg'),function(el){
+      el.onmouseenter=function(e){var t=document.createElement('div');t.className='tooltip';t.id='tip';t.innerHTML='<b>'+esc(el.dataset.code)+'</b><br>'+(el.dataset.pending==='1'?'待切码计划<br>':'')+esc(el.dataset.start)+' → '+esc(el.dataset.end);document.body.appendChild(t);moveTip(e);};
+      el.onmousemove=moveTip;el.onmouseleave=function(){var t=$('tip');if(t)t.remove();};
+    });
+  }
+  window.toggleClientYear=function(year){collapsedYears[year]=!collapsedYears[year];render();};
+  function moveTip(e){var t=$('tip');if(!t)return;t.style.left=Math.min(e.clientX+12,window.innerWidth-220)+'px';t.style.top=Math.min(e.clientY+12,window.innerHeight-90)+'px';}
+  function buildFilters(){
+    var brands=Array.from(new Set(data.recs.map(function(r){return r.brand;}).filter(Boolean))).sort();
+    $('brand').innerHTML='<option value="">全部品牌</option>'+brands.map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+    var codes=Array.from(new Set(data.cuts.map(function(c){return c.code;}).filter(Boolean))).sort();
+    $('code').innerHTML='<option value="">全部活动</option>'+codes.map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+  }
+  function localData(){
+    function read(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch(e){return[];}}
+    return{recs:read('uad_recs'),cuts:read('uad_cuts'),camps:read('uad_camps'),savedAt:''};
+  }
+  async function load(){
+    $('status').textContent='正在读取团队最新数据…';
+    if(window.__UAD_CALENDAR__&&Array.isArray(window.__UAD_CALENDAR__.recs)&&Array.isArray(window.__UAD_CALENDAR__.cuts)){
+      data=Object.assign({recs:[],cuts:[],camps:[],savedAt:''},window.__UAD_CALENDAR__);
+      $('status').textContent='已载入客户发布版 · 只读';
+      buildFilters();
+      var published=new Date(data.savedAt);$('m-date').textContent=isNaN(published.getTime())?'已发布':((published.getMonth()+1)+'月'+published.getDate()+'日 '+String(published.getHours()).padStart(2,'0')+':'+String(published.getMinutes()).padStart(2,'0'));
+      render();
+      return;
+    }
+    try{
+      if(location.protocol==='file:')throw new Error('local');
+      var base=String(window.UAD_API_BASE||'').replace(/\/+$/,''),token='';try{token=sessionStorage.getItem('uad_cloudbase_session')||'';}catch(e){}
+      var headers={};if(token)headers.Authorization='Bearer '+token;
+      var res=await fetch(base+'/api/snapshot',{cache:'no-store',headers:headers});
+      if(res.status===401){location.replace('/');return;}
+      var json=await res.json();if(!res.ok)throw new Error(json.error||'读取失败');
+      data=Object.assign({recs:[],cuts:[],camps:[]},json.data||{});data.savedAt=json.savedAt||data.savedAt||'';
+      $('status').textContent='已载入团队最新数据'+(json.operator?' · '+json.operator+' 保存':'');
+    }catch(err){
+      data=localData();$('status').textContent=data.recs.length?'当前为本机数据预览':'暂无本机数据；部署到正式地址后将自动读取团队快照';
+    }
+    buildFilters();
+    var d=new Date(data.savedAt);$('m-date').textContent=isNaN(d.getTime())?'本机预览':((d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
+    render();
+  }
+  ['q','brand','code','sort'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',render);});
+  Array.prototype.forEach.call(document.querySelectorAll('.year-tabs button'),function(btn){btn.onclick=function(){selectedYear=btn.dataset.year;document.querySelector('.year-tabs .active').classList.remove('active');btn.classList.add('active');render();};});
+  $('refresh').onclick=load;
+  load();
+})();
+</script>
+</body>
+</html>
