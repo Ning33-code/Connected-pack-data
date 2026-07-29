@@ -112,6 +112,27 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
   var palette=['#F2A17E','#9EB8D7','#F6C35B','#8FC9C2','#B7A6D7','#D8A7B1','#A7C48B','#E2B891','#82B6A9','#DDA0A8','#A9A2D0','#E7B56F','#8FB2C8','#C4AF83','#92C3A4','#D7A1C4','#B2B6CE','#E1A58A','#9CC4C7','#C6B38A'];
   var $=function(id){return document.getElementById(id);};
   function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  var HONOR_WALL_CODE='202412HonorWall';
+  function canonicalActivityCode(value){
+    var raw=String(value||'').trim(),key=raw.replace(/[\s_-]+/g,'').toLowerCase();
+    return key==='hw'||key==='honorwall'||key==='202412honorwall'?HONOR_WALL_CODE:raw;
+  }
+  function normalizeActivityData(input){
+    input=input||{recs:[],cuts:[],camps:[],savedAt:''};
+    input.cuts=(Array.isArray(input.cuts)?input.cuts:[]).map(function(c){
+      var out=Object.assign({},c||{});out.code=canonicalActivityCode(out.code);return out;
+    });
+    var seen={};
+    input.camps=(Array.isArray(input.camps)?input.camps:[]).map(function(c){
+      var out=Object.assign({},c||{});out.code=canonicalActivityCode(out.code||out.name);
+      if(out.code===HONOR_WALL_CODE)out.name=HONOR_WALL_CODE;
+      return out;
+    }).filter(function(c){
+      var key=String(c.code||c.name||'').toLowerCase();if(!key)return true;
+      if(seen[key])return false;seen[key]=1;return true;
+    });
+    return input;
+  }
   function parseDate(v){var m=String(v||'').trim().replace(/[\/.]/g,'-').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
   function sourceRec(src){return data.recs.find(function(r){return String(r.utm_source||'').trim()===src;})||null;}
   function prodYear(src){var r=sourceRec(src),y=parseInt(String(r&&r.date||'').slice(0,4),10);return y===2025||y===2026?y:0;}
@@ -349,7 +370,7 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
   async function load(){
     $('status').textContent='正在读取团队最新数据…';
     if(window.__UAD_CALENDAR__&&Array.isArray(window.__UAD_CALENDAR__.recs)&&Array.isArray(window.__UAD_CALENDAR__.cuts)){
-      data=Object.assign({recs:[],cuts:[],camps:[],savedAt:''},window.__UAD_CALENDAR__);
+      data=normalizeActivityData(Object.assign({recs:[],cuts:[],camps:[],savedAt:''},window.__UAD_CALENDAR__));
       $('status').textContent='已载入客户发布版 · 只读';
       buildFilters();
       var published=new Date(data.savedAt);$('m-date').textContent=isNaN(published.getTime())?'已发布':((published.getMonth()+1)+'月'+published.getDate()+'日 '+String(published.getHours()).padStart(2,'0')+':'+String(published.getMinutes()).padStart(2,'0'));
@@ -363,10 +384,10 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
       var res=await fetch(base+'/api/snapshot',{cache:'no-store',headers:headers});
       if(res.status===401){location.replace('/');return;}
       var json=await res.json();if(!res.ok)throw new Error(json.error||'读取失败');
-      data=Object.assign({recs:[],cuts:[],camps:[]},json.data||{});data.savedAt=json.savedAt||data.savedAt||'';
+      data=normalizeActivityData(Object.assign({recs:[],cuts:[],camps:[]},json.data||{}));data.savedAt=json.savedAt||data.savedAt||'';
       $('status').textContent='已载入团队最新数据'+(json.operator?' · '+json.operator+' 保存':'');
     }catch(err){
-      data=localData();$('status').textContent=data.recs.length?'当前为本机数据预览':'暂无本机数据；部署到正式地址后将自动读取团队快照';
+      data=normalizeActivityData(localData());$('status').textContent=data.recs.length?'当前为本机数据预览':'暂无本机数据；部署到正式地址后将自动读取团队快照';
     }
     buildFilters();
     var d=new Date(data.savedAt);$('m-date').textContent=isNaN(d.getTime())?'本机预览':((d.getMonth()+1)+'月'+d.getDate()+'日 '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
