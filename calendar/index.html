@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Connected Pack Landing Calendar · Read Only</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -13,6 +14,8 @@
 }
 body{font-family:var(--sans);background:var(--canvas);color:var(--ink);font-size:13px;min-height:100vh}
 button,input,select{font:inherit}
+.export-btn{height:32px;border:1px solid var(--red);background:#fff;color:var(--red);border-radius:5px;padding:0 12px;cursor:pointer;font-size:11px;font-weight:800;white-space:nowrap}
+.export-btn:hover{background:var(--red);color:#fff}.export-btn:disabled{opacity:.55;cursor:wait}
 .top-rule{height:5px;background:var(--red)}
 .shell{max-width:1540px;margin:0 auto;padding:26px 28px 48px}
 .hero{background:#090909;color:#fff;border-radius:12px 12px 0 0;padding:27px 30px;min-height:160px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}
@@ -91,6 +94,7 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
       <div class="year-tabs" aria-label="产码年份筛选">
         <button data-year="" class="active">全部</button><button data-year="2026">2026</button><button data-year="2025">2025</button>
       </div>
+      <button class="export-btn" id="export">↓ 导出 Excel</button>
       <button class="refresh" id="refresh">刷新数据</button>
     </div>
     <div class="status"><span id="status">正在读取团队数据…</span><span>实色 = 已发生 · 虚色 = 待切码计划 · 筛选不会修改记录</span></div>
@@ -149,6 +153,140 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
       return ta-tb||a.localeCompare(b);
     });
     return{srcs:srcs,by:by};
+  }
+  function exportSources(){
+    var by=codeEvents(),q=$('q').value.trim().toLowerCase(),brand=$('brand').value,code=$('code').value;
+    var srcs=data.recs.filter(function(r){
+      var src=String(r.utm_source||'').trim(),y=prodYear(src),events=by[src]||[];
+      if(!src||!y||!events.some(function(c){var d=parseDate(c.cut_date);return d&&d.getFullYear()>=2025&&d.getFullYear()<=2026;}))return false;
+      if(selectedYear&&String(y)!==selectedYear)return false;
+      if(brand&&r.brand!==brand)return false;
+      if(code&&!events.some(function(c){return c.code===code;}))return false;
+      if(selectedLegend&&!events.some(function(c){return c.code===selectedLegend;}))return false;
+      var hay=[src,r.brand,r.sku_info,r.flavor,r.sku,r.pkg].join(' ').toLowerCase();
+      return !q||hay.includes(q);
+    }).map(function(r){return String(r.utm_source||'').trim();});
+    srcs=Array.from(new Set(srcs));
+    srcs.sort(function(a,b){
+      var ra=sourceRec(a),rb=sourceRec(b);
+      if($('sort').value==='brand')return String(ra.brand||'').localeCompare(String(rb.brand||''))||a.localeCompare(b);
+      var da=parseDate(ra.date),db=parseDate(rb.date);
+      var ta=da?da.getTime():Number.MAX_SAFE_INTEGER,tb=db?db.getTime():Number.MAX_SAFE_INTEGER;
+      return ta-tb||a.localeCompare(b);
+    });
+    return{srcs:srcs,by:by};
+  }
+  function exportLegacyExcel(f){
+    function xe(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c];});}
+    function cell(v,style,merge){return '<Cell'+(style?' ss:StyleID="'+style+'"':'')+(merge?' ss:MergeAcross="'+merge+'"':'')+'><Data ss:Type="String">'+xe(v)+'</Data></Cell>';}
+    function fmt(d){return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');}
+    function pale(code){
+      var h=color(code).replace('#',''),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),mix=.55;
+      return '#'+[r,g,b].map(function(v){return Math.round(v+(255-v)*mix).toString(16).padStart(2,'0');}).join('').toUpperCase();
+    }
+    var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));
+    var today=new Date();today.setHours(0,0,0,0);
+    var usedCodes=new Set(),rows=[];
+    f.srcs.forEach(function(src){
+      var r=sourceRec(src)||{},events=(f.by[src]||[]).map(function(c){
+        return{code:String(c.code||'—'),d:parseDate(c.cut_date),status:c.status||'done'};
+      }).filter(function(e){return e.d;}).sort(function(a,b){return a.d-b.d;});
+      var vals=[r.date||'',r.brand||'',r.sku_info||'',src];
+      months.forEach(function(mm){
+        var monthEnd=new Date(mm.getFullYear(),mm.getMonth()+1,0,23,59,59),active=null;
+        events.forEach(function(e){if(e.d<=monthEnd)active=e;});
+        if(active){usedCodes.add(active.code);vals.push({code:active.code,date:fmt(active.d),key:active.code+'|'+active.d.getTime(),pending:active.status==='pending'||active.d>today});}
+        else vals.push(null);
+      });
+      rows.push(vals);
+    });
+    var codeList=Array.from(usedCodes),styleByCode={};
+    var codeStyles=codeList.map(function(code,i){styleByCode[code]='C'+i;return '<Style ss:ID="C'+i+'"><Font ss:Bold="1" ss:Size="9"/><Interior ss:Color="'+pale(code)+'" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/></Style>';}).join('');
+    var headers=['产码时间','品牌','SKU信息','UTM-SOURCE'].concat(months.map(function(mm){return mm.getFullYear()+'-'+String(mm.getMonth()+1).padStart(2,'0');}));
+    var xml='<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>'
+      +'<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
+      +'<Styles><Style ss:ID="Default"><Alignment ss:Vertical="Center"/></Style><Style ss:ID="H"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#111111" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style><Style ss:ID="S"><Font ss:Bold="1" ss:Color="#F40009"/></Style>'+codeStyles+'</Styles>'
+      +'<Worksheet ss:Name="Calendar 2025-2026"><Table ss:ExpandedColumnCount="28" ss:ExpandedRowCount="'+(rows.length+2)+'">'
+      +'<Column ss:Width="82"/><Column ss:Width="72"/><Column ss:Width="220"/><Column ss:Width="105"/>'+months.map(function(){return'<Column ss:Width="88"/>';}).join('')
+      +'<Row ss:Height="24">'+headers.map(function(h){return cell(h,'H');}).join('')+'</Row>';
+    rows.forEach(function(vals){
+      xml+='<Row ss:Height="34">'+cell(vals[0])+cell(vals[1])+cell(vals[2])+cell(vals[3],'S');
+      var i=4;
+      while(i<vals.length){
+        var v=vals[i];if(!v){xml+=cell('');i++;continue;}
+        var j=i;while(j+1<vals.length&&vals[j+1]&&vals[j+1].key===v.key)j++;
+        xml+=cell(v.code+'\n'+v.date+(v.pending?'\n待执行':''),styleByCode[v.code],j-i);i=j+1;
+      }
+      xml+='</Row>';
+    });
+    xml+='<Row><Cell ss:MergeAcross="27"><Data ss:Type="String">导出范围：当前网页筛选结果；Calendar 时间线固定为 2025-01 至 2026-12。</Data></Cell></Row>'
+      +'</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>1</SplitHorizontal><TopRowBottomPane>1</TopRowBottomPane><SplitVertical>4</SplitVertical><LeftColumnRightPane>4</LeftColumnRightPane></WorksheetOptions></Worksheet></Workbook>';
+    var blob=new Blob(['\ufeff'+xml],{type:'application/vnd.ms-excel;charset=utf-8'}),a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='Connected_Pack_Calendar_2025-2026_'+new Date().toISOString().slice(0,10)+'.xls';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  }
+  async function exportExcel(){
+    var btn=$('export'),f=exportSources();
+    if(!f.srcs.length){alert('当前筛选下没有可导出的 Calendar 数据');return;}
+    if(typeof ExcelJS==='undefined'){exportLegacyExcel(f);return;}
+    btn.disabled=true;btn.textContent='正在生成…';
+    try{
+      var wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Calendar 2025-2026',{views:[{state:'frozen',xSplit:4,ySplit:1}]});
+      wb.creator='UAD Connected Pack';wb.created=new Date();
+      var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));
+      ws.columns=[
+        {header:'产码时间',key:'date',width:13},{header:'品牌',key:'brand',width:12},
+        {header:'SKU信息',key:'sku',width:34},{header:'UTM-SOURCE',key:'source',width:17}
+      ].concat(months.map(function(mm){return{header:mm.getFullYear()+'-'+String(mm.getMonth()+1).padStart(2,'0'),width:15};}));
+      ws.getRow(1).height=23;ws.getRow(1).eachCell(function(cell){
+        cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF111111'}};
+        cell.font={bold:true,size:10,color:{argb:'FFFFFFFF'}};
+        cell.alignment={horizontal:'center',vertical:'middle'};
+      });
+      ws.autoFilter={from:'A1',to:'AB1'};
+      var today=new Date();today.setHours(0,0,0,0);
+      function fmt(d){return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');}
+      function pale(code){
+        var h=color(code).replace('#',''),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),mix=.55;
+        return [r,g,b].map(function(v){return Math.round(v+(255-v)*mix).toString(16).padStart(2,'0');}).join('').toUpperCase();
+      }
+      f.srcs.forEach(function(src){
+        var r=sourceRec(src)||{},events=(f.by[src]||[]).map(function(c){
+          return{code:String(c.code||'—'),d:parseDate(c.cut_date),status:c.status||'done'};
+        }).filter(function(e){return e.d;}).sort(function(a,b){return a.d-b.d;});
+        var timeline=[];
+        months.forEach(function(mm){
+          var monthEnd=new Date(mm.getFullYear(),mm.getMonth()+1,0,23,59,59),active=null;
+          events.forEach(function(e){if(e.d<=monthEnd)active=e;});
+          timeline.push(active?{code:active.code,date:fmt(active.d),key:active.code+'|'+active.d.getTime(),pending:active.status==='pending'||active.d>today}:null);
+        });
+        var row=ws.addRow([r.date||'',r.brand||'',r.sku_info||'',src].concat(months.map(function(){return'';})));row.height=34;
+        row.getCell(1).alignment={horizontal:'center',vertical:'middle'};
+        row.getCell(3).alignment={vertical:'middle',wrapText:true};
+        row.getCell(4).font={bold:true,color:{argb:'FFF40009'}};
+        var i=0;
+        while(i<timeline.length){
+          var active=timeline[i];if(!active){i++;continue;}
+          var j=i;while(j+1<timeline.length&&timeline[j+1]&&timeline[j+1].key===active.key)j++;
+          var c1=5+i,c2=5+j,hex=pale(active.code);
+          for(var c=c1;c<=c2;c++){
+            var cell=row.getCell(c);cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+hex}};
+            cell.font={bold:true,size:9,color:{argb:'FF302B27'},italic:active.pending};
+            cell.alignment={horizontal:'left',vertical:'middle',wrapText:true};
+          }
+          row.getCell(c1).value=active.code+'\n'+active.date+(active.pending?'\n待执行':'');
+          if(c2>c1)ws.mergeCells(row.number,c1,row.number,c2);
+          i=j+1;
+        }
+      });
+      var note=ws.addRow(['导出范围：当前网页筛选结果；Calendar 时间线固定为 2025-01 至 2026-12。']);
+      ws.mergeCells(note.number,1,note.number,28);note.font={italic:true,size:9,color:{argb:'FF6F6A65'}};
+      var buf=await wb.xlsx.writeBuffer(),blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+      a.download='Connected_Pack_Calendar_2025-2026_'+new Date().toISOString().slice(0,10)+'.xlsx';
+      document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+    }catch(err){alert('导出失败：'+err.message);}
+    finally{btn.disabled=false;btn.textContent='↓ 导出 Excel';}
   }
   function monthHeader(){
     var s='<div class="gantt-head"><div class="label"></div><div class="track month-track">';
@@ -225,6 +363,7 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
   ['q','brand','code','sort'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',render);});
   Array.prototype.forEach.call(document.querySelectorAll('.year-tabs button'),function(btn){btn.onclick=function(){selectedYear=btn.dataset.year;document.querySelector('.year-tabs .active').classList.remove('active');btn.classList.add('active');render();};});
   $('refresh').onclick=load;
+  $('export').onclick=exportExcel;
   load();
 })();
 </script>
