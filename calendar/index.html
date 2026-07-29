@@ -178,7 +178,7 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
   }
   function exportLegacyExcel(f){
     function xe(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c];});}
-    function cell(v,style,merge){return '<Cell'+(style?' ss:StyleID="'+style+'"':'')+(merge?' ss:MergeAcross="'+merge+'"':'')+'><Data ss:Type="String">'+xe(v)+'</Data></Cell>';}
+    function cell(v,style,merge){return '<Cell ss:StyleID="'+(style||'D')+'"'+(merge?' ss:MergeAcross="'+merge+'"':'')+'><Data ss:Type="String">'+xe(v)+'</Data></Cell>';}
     function fmt(d){return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');}
     function pale(code){
       var h=color(code).replace('#',''),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),mix=.55;
@@ -201,11 +201,11 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
       rows.push(vals);
     });
     var codeList=Array.from(usedCodes),styleByCode={};
-    var codeStyles=codeList.map(function(code,i){styleByCode[code]='C'+i;return '<Style ss:ID="C'+i+'"><Font ss:Bold="1" ss:Size="9"/><Interior ss:Color="'+pale(code)+'" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/></Style>';}).join('');
+    var codeStyles=codeList.map(function(code,i){styleByCode[code]='C'+i;return '<Style ss:ID="C'+i+'"><Font ss:FontName="微软雅黑" x:CharSet="134" ss:Bold="1" ss:Size="9"/><Interior ss:Color="'+pale(code)+'" ss:Pattern="Solid"/><Alignment ss:Vertical="Center" ss:WrapText="1"/></Style>';}).join('');
     var headers=['产码时间','品牌','SKU信息','UTM-SOURCE'].concat(months.map(function(mm){return mm.getFullYear()+'-'+String(mm.getMonth()+1).padStart(2,'0');}));
     var xml='<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>'
       +'<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
-      +'<Styles><Style ss:ID="Default"><Alignment ss:Vertical="Center"/></Style><Style ss:ID="H"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#111111" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style><Style ss:ID="S"><Font ss:Bold="1" ss:Color="#F40009"/></Style>'+codeStyles+'</Styles>'
+      +'<Styles><Style ss:ID="Default"><Font ss:FontName="微软雅黑" x:CharSet="134"/><Alignment ss:Vertical="Center"/></Style><Style ss:ID="D"><Font ss:FontName="微软雅黑" x:CharSet="134"/><Alignment ss:Vertical="Center" ss:WrapText="1"/></Style><Style ss:ID="H"><Font ss:FontName="微软雅黑" x:CharSet="134" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#111111" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style><Style ss:ID="S"><Font ss:FontName="微软雅黑" x:CharSet="134" ss:Bold="1" ss:Color="#F40009"/><Alignment ss:Vertical="Center"/></Style>'+codeStyles+'</Styles>'
       +'<Worksheet ss:Name="Calendar 2025-2026"><Table ss:ExpandedColumnCount="28" ss:ExpandedRowCount="'+(rows.length+2)+'">'
       +'<Column ss:Width="82"/><Column ss:Width="72"/><Column ss:Width="220"/><Column ss:Width="105"/>'+months.map(function(){return'<Column ss:Width="88"/>';}).join('')
       +'<Row ss:Height="24">'+headers.map(function(h){return cell(h,'H');}).join('')+'</Row>';
@@ -219,7 +219,7 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
       }
       xml+='</Row>';
     });
-    xml+='<Row><Cell ss:MergeAcross="27"><Data ss:Type="String">导出范围：当前网页筛选结果；Calendar 时间线固定为 2025-01 至 2026-12。</Data></Cell></Row>'
+    xml+='<Row><Cell ss:StyleID="D" ss:MergeAcross="27"><Data ss:Type="String">导出范围：当前网页筛选结果；Calendar 时间线固定为 2025-01 至 2026-12。</Data></Cell></Row>'
       +'</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>1</SplitHorizontal><TopRowBottomPane>1</TopRowBottomPane><SplitVertical>4</SplitVertical><LeftColumnRightPane>4</LeftColumnRightPane></WorksheetOptions></Worksheet></Workbook>';
     var blob=new Blob(['\ufeff'+xml],{type:'application/vnd.ms-excel;charset=utf-8'}),a=document.createElement('a');
     a.href=URL.createObjectURL(blob);a.download='Connected_Pack_Calendar_2025-2026_'+new Date().toISOString().slice(0,10)+'.xls';
@@ -228,7 +228,9 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
   async function exportExcel(){
     var btn=$('export'),f=exportSources();
     if(!f.srcs.length){alert('当前筛选下没有可导出的 Calendar 数据');return;}
-    if(typeof ExcelJS==='undefined'){exportLegacyExcel(f);return;}
+    // Use the validated offline-compatible exporter for both online and local clients.
+    // This avoids CDN/library failures and keeps the output identical in every environment.
+    exportLegacyExcel(f);return;
     btn.disabled=true;btn.textContent='正在生成…';
     try{
       var wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Calendar 2025-2026',{views:[{state:'frozen',xSplit:4,ySplit:1}]});
@@ -281,6 +283,12 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.35px}.hero-sub{font-size:11p
       });
       var note=ws.addRow(['导出范围：当前网页筛选结果；Calendar 时间线固定为 2025-01 至 2026-12。']);
       ws.mergeCells(note.number,1,note.number,28);note.font={italic:true,size:9,color:{argb:'FF6F6A65'}};
+      ws.eachRow(function(row){
+        row.eachCell({includeEmpty:true},function(cell){
+          cell.font=Object.assign({name:'微软雅黑'},cell.font||{});
+          cell.alignment=Object.assign({vertical:'middle'},cell.alignment||{});
+        });
+      });
       var buf=await wb.xlsx.writeBuffer(),blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
       var a=document.createElement('a');a.href=URL.createObjectURL(blob);
       a.download='Connected_Pack_Calendar_2025-2026_'+new Date().toISOString().slice(0,10)+'.xlsx';
