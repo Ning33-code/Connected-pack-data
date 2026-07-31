@@ -129,7 +129,6 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     <div id="calendar"></div>
   </section>
 </main>
-<script src="calendar-data.js"></script>
 <script>
 (function(){
   'use strict';
@@ -452,8 +451,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     $('code').value='';
     collapsedBrands={};
   }
-  async function load(){
-    $('status').textContent='正在读取客户发布数据…';
+  function applyLoadedData(){
     if(window.__UAD_CALENDAR__&&Array.isArray(window.__UAD_CALENDAR__.recs)&&Array.isArray(window.__UAD_CALENDAR__.cuts)){
       data=normalizeActivityData(Object.assign({recs:[],cuts:[],camps:[],savedAt:''},window.__UAD_CALENDAR__));
       $('status').textContent='已载入客户发布版 · 只读';
@@ -467,6 +465,24 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     buildFilters();
     $('m-date').textContent='加载失败';
     render();
+  }
+  function load(){
+    $('status').textContent='正在读取客户发布数据…';
+    var previous=document.getElementById('calendar-data-runtime');
+    if(previous)previous.remove();
+    window.__UAD_CALENDAR__=null;
+    var script=document.createElement('script');
+    script.id='calendar-data-runtime';
+    script.src='calendar-data.js?v='+Date.now();
+    script.onload=applyLoadedData;
+    script.onerror=function(){
+      data=normalizeActivityData({recs:[],cuts:[],camps:[],savedAt:''});
+      $('status').textContent='客户数据文件加载失败，请刷新页面或联系 UAD';
+      buildFilters();
+      $('m-date').textContent='加载失败';
+      render();
+    };
+    document.body.appendChild(script);
   }
   ['q','code'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',render);});
   $('clear-filter').onclick=function(){resetFilters();render();};
