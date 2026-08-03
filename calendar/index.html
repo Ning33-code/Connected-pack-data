@@ -166,8 +166,12 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   var $=function(id){return document.getElementById(id);};
   function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   var HONOR_WALL_CODE='OCP HonorWall';
+  var CAMPAIGN_ENDS={'2603MMWM':'2026-12-31','2607SPRITESPICYAI':'2026-12-31','2605QOOTY':'2026-12-30','2603CYALI':'2026-11-30','纯悦支付宝活动':'2026-11-30','2505SPRITESUMMERCAN':'2026-10-31','2605COKEFIFA':'2026-08-17','2603CCNSAI':'2026-05-31','2026CNY':'2026-03-04'};
+  function activityEndDate(code){var value=CAMPAIGN_ENDS[canonicalActivityCode(code)];return value?parseDate(value):null;}
+  function shortDate(d){return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
   function canonicalActivityCode(value){
     var raw=String(value||'').trim(),key=raw.replace(/[\s_-]+/g,'').toLowerCase();
+    if(raw==='OCP HonorWall（活动结束后默认）')return HONOR_WALL_CODE;
     return key==='hw'||key==='honorwall'||key==='202412honorwall'||key==='ocphonorwall'?HONOR_WALL_CODE:raw;
   }
   function normalizeActivityData(input){
@@ -222,11 +226,18 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     var start=new Date(2026,0,1),end=new Date(2026,11,31),days=365;
     var ev=(bySource[src]||[]).slice().sort(function(a,b){return parseDate(a.cut_date)-parseDate(b.cut_date);}),out=[];
     for(var i=0;i<ev.length;i++){
-      var s=parseDate(ev[i].cut_date),e=i<ev.length-1?parseDate(ev[i+1].cut_date):new Date(2027,0,1);
+      var s=parseDate(ev[i].cut_date),naturalEnd=i<ev.length-1?parseDate(ev[i+1].cut_date):new Date(2027,0,1),e=naturalEnd;
+      var code=canonicalActivityCode(ev[i].code||''),activityEnd=activityEndDate(code),defaultStart=null;
+      if(code!==HONOR_WALL_CODE&&activityEnd&&activityEnd>=s&&activityEnd<naturalEnd){defaultStart=new Date(activityEnd);defaultStart.setDate(defaultStart.getDate()+1);if((naturalEnd-defaultStart)/864e5>=7)e=defaultStart;}
       var a=Math.max(0,Math.ceil((s-start)/864e5)),b=Math.min(days,Math.ceil((e-start)/864e5));
       if(b<=0||a>=days||b<=a)continue;
       var today=new Date();today.setHours(0,0,0,0);
       out.push({code:ev[i].code||'—',start:ev[i].cut_date,end:i<ev.length-1?ev[i+1].cut_date:'持续中',left:a/days*100,width:(b-a)/days*100,pending:ev[i].status==='pending'||s>today});
+    }
+    for(var j=0;j<ev.length;j++){
+      var jc=canonicalActivityCode(ev[j].code||''),jd=jc!==HONOR_WALL_CODE?activityEndDate(jc):null,js=jd?new Date(jd):null;
+      if(!js)continue;js.setDate(js.getDate()+1);var jn=j<ev.length-1?parseDate(ev[j+1].cut_date):new Date(2027,0,1);if(js>=jn)continue;
+      var ja=Math.max(0,Math.ceil((js-start)/864e5)),jb=Math.min(days,Math.ceil((jn-start)/864e5));if(jb>0&&ja<days&&jb>ja&&(jn-js)/864e5>=7)out.push({code:HONOR_WALL_CODE+'（活动结束后默认）',start:shortDate(js),end:j<ev.length-1?ev[j+1].cut_date:'持续中',left:ja/days*100,width:(jb-ja)/days*100,pending:true,defaultFallback:true});
     }
     return out;
   }
@@ -236,7 +247,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       var r=sourceRec(src),y=prodYear(src),sg=segments(src,by);
       if(!r||!y||!sg.length)return false;
       if(selectedBrand&&brandDef(r.brand).key!==selectedBrand)return false;
-      if(code&&!sg.some(function(x){return x.code===code;}))return false;
+      if(code&&!sg.some(function(x){return canonicalActivityCode(x.code)===code;}))return false;
       var hay=[src,r.brand,r.sku_info,r.flavor,r.sku,r.pkg].join(' ').toLowerCase();
       return !q||hay.includes(q);
     });
@@ -397,9 +408,9 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   }
   function render(){
     var f=filtered(),codes=new Set();
-    f.srcs.forEach(function(src){segments(src,f.by).forEach(function(x){codes.add(x.code);});});
+    f.srcs.forEach(function(src){segments(src,f.by).forEach(function(x){codes.add(canonicalActivityCode(x.code));});});
     var allBy=codeEvents(),allSources=Object.keys(allBy).filter(function(src){return sourceRec(src)&&prodYear(src)&&segments(src,allBy).length;});
-    var allCodes=new Set();allSources.forEach(function(src){segments(src,allBy).forEach(function(x){allCodes.add(x.code);});});
+    var allCodes=new Set();allSources.forEach(function(src){segments(src,allBy).forEach(function(x){allCodes.add(canonicalActivityCode(x.code));});});
     $('m-sku').textContent=allSources.length;$('m-code').textContent=allCodes.size;
     $('legend').innerHTML='<span class="legend-title">Campaign 色标</span>'+Array.from(codes).sort().map(function(c){return '<span class="legend-item"><i class="swatch" style="background:'+color(c)+'"></i>'+esc(c)+'</span>';}).join('');
     $('clear-filter').disabled=!selectedBrand&&!$('q').value.trim()&&!$('code').value;
@@ -417,7 +428,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       list.forEach(function(src){
         var r=sourceRec(src),sg=segments(src,f.by);
         html+='<div class="gantt-row"><div class="label" title="'+esc((r.sku_info||''))+'"><span class="src">'+esc(src)+'</span><span class="sku">'+esc((r.sku_info||''))+'</span></div><div class="track">';
-        sg.forEach(function(x){html+='<span class="seg'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+';color:'+textColor(x.code)+'">'+esc(x.code)+'</span>';});
+        sg.forEach(function(x){html+='<span class="seg'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" data-fallback="'+(x.defaultFallback?'1':'0')+'" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+';color:'+textColor(x.code)+'">'+esc(x.code)+'</span>';});
         var n=new Date();if(n.getFullYear()===2026){var d=Math.ceil((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(2026,0,1))/864e5);html+='<i class="today-line" style="left:'+(d/365*100)+'%"></i>';}
         html+='</div></div>';
       });
@@ -425,7 +436,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     });
     $('calendar').innerHTML=html||'<div class="empty"><b>没有匹配的 Calendar 数据</b>请调整搜索或筛选条件</div>';
     Array.prototype.forEach.call(document.querySelectorAll('.seg'),function(el){
-      el.onmouseenter=function(e){var t=document.createElement('div');t.className='tooltip';t.id='tip';t.innerHTML='<b>'+esc(el.dataset.code)+'</b><br>'+(el.dataset.pending==='1'?'待切码计划<br>':'')+esc(el.dataset.start)+' → '+esc(el.dataset.end);document.body.appendChild(t);moveTip(e);};
+      el.onmouseenter=function(e){var t=document.createElement('div');t.className='tooltip';t.id='tip';t.innerHTML=el.dataset.fallback==='1'?esc(el.dataset.start)+' → 待切码计划':'<b>'+esc(el.dataset.code)+'</b><br>'+(el.dataset.pending==='1'?'待切码计划<br>':'')+esc(el.dataset.start)+' → '+esc(el.dataset.end);document.body.appendChild(t);moveTip(e);};
       el.onmousemove=moveTip;el.onmouseleave=function(){var t=$('tip');if(t)t.remove();};
     });
   }
