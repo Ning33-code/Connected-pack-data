@@ -25,7 +25,7 @@ button,input,select{font:inherit}
 .hero-copy{min-width:0;position:relative;z-index:3}.eyebrow{font-size:11px;letter-spacing:1.45px;color:#FF6A70;font-weight:850;margin-bottom:6px}
 h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13px;color:#D2CDCA;margin-top:8px}
 .hero-brand-logo{position:absolute;right:24px;top:22px;width:190px;height:auto;object-fit:contain;z-index:3}
-.hero-double-bottle{position:absolute;right:17.5%;bottom:-17px;height:185px;width:auto;z-index:2;opacity:.78;pointer-events:none}
+.hero-double-bottle{position:absolute;right:17.5%;bottom:-17px;height:190px;width:auto;z-index:2;opacity:.96;pointer-events:none}
 .uad-credit{position:absolute;right:22px;bottom:18px;z-index:3;color:#fff;border:1px solid rgba(255,255,255,.72);border-radius:99px;padding:6px 13px;font-size:11px;font-weight:800;letter-spacing:.65px;background:rgba(0,0,0,.28)}
 .panel{background:var(--paper);border-radius:0 0 12px 12px;box-shadow:var(--shadow);padding:18px 20px 24px}
 .metrics{display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));border:1px solid var(--line);margin-bottom:16px}
@@ -96,7 +96,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       <h1>Connected Pack · Campaign Calendar</h1>
       <div class="hero-sub">让每一瓶产品，都成为连接消费者数字体验的入口</div>
     </div>
-    <img class="hero-double-bottle" src="assets/double-bottle-bubbles.png" alt="" aria-hidden="true">
+    <img class="hero-double-bottle" src="assets/coke-bottle-reference.png" alt="" aria-hidden="true">
     <img class="hero-brand-logo" src="assets/coke-bar-logo-red-white.png" alt="可口可乐吧">
     <span class="uad-credit">By UAD</span>
   </section>
@@ -129,6 +129,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     <div id="calendar"></div>
   </section>
 </main>
+<script src="calendar-data.js"></script>
 <script>
 (function(){
   'use strict';
@@ -140,7 +141,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     {key:'Fanta',label:'Fanta',logo:'fanta.png',color:'#F28A18',aliases:['Fanta']},
     {key:'Schweppes',label:'Schweppes',logo:'schweppes.png',color:'#E7AD26',aliases:['Schweppes']},
     {key:'MM',label:'Minute Maid',logo:'minute-maid.png',color:'#F2A52B',aliases:['MM','Minute Maid']},
-    {key:'Qoo',label:'Qoo',logo:'qoo.png',color:'#1356A2',aliases:['Qoo']},
+    {key:'Qoo',label:'Qoo',logo:'qoo.png',color:'#63C8EA',aliases:['Qoo']},
     {key:'COSTA',label:'Costa',logo:'costa.png',color:'#7A1E38',aliases:['COSTA','Costa']},
     {key:'Chunyue',label:'Chun Yue',logo:'chun-yue.png',color:'#5A2B82',aliases:['Chunyue','Chun Yue']},
     {key:'ATH',label:'ATH',logo:'ath.png',color:'#19583C',aliases:['ATH']},
@@ -157,7 +158,8 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     '2505SPRITESUMMERCAN':'#56B96A',
     '2607SPRITESPICYAI':'#0D7540',
     '檀健次长图文':'#95C93D',
-    '2605QOOTY':'#174F9A',
+    '2605QOOTY':'#63C8EA',
+    '2603CYALI':'#5A2B82',
     '纯悦支付宝活动':'#5A2B82',
     'OCP HonorWall':'#F2C94C'
   };
@@ -451,7 +453,8 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     $('code').value='';
     collapsedBrands={};
   }
-  function applyLoadedData(){
+  async function load(){
+    $('status').textContent='正在读取客户发布数据…';
     if(window.__UAD_CALENDAR__&&Array.isArray(window.__UAD_CALENDAR__.recs)&&Array.isArray(window.__UAD_CALENDAR__.cuts)){
       data=normalizeActivityData(Object.assign({recs:[],cuts:[],camps:[],savedAt:''},window.__UAD_CALENDAR__));
       $('status').textContent='已载入客户发布版 · 只读';
@@ -465,24 +468,6 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     buildFilters();
     $('m-date').textContent='加载失败';
     render();
-  }
-  function load(){
-    $('status').textContent='正在读取客户发布数据…';
-    var previous=document.getElementById('calendar-data-runtime');
-    if(previous)previous.remove();
-    window.__UAD_CALENDAR__=null;
-    var script=document.createElement('script');
-    script.id='calendar-data-runtime';
-    script.src='calendar-data.js?v='+Date.now();
-    script.onload=applyLoadedData;
-    script.onerror=function(){
-      data=normalizeActivityData({recs:[],cuts:[],camps:[],savedAt:''});
-      $('status').textContent='客户数据文件加载失败，请刷新页面或联系 UAD';
-      buildFilters();
-      $('m-date').textContent='加载失败';
-      render();
-    };
-    document.body.appendChild(script);
   }
   ['q','code'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',render);});
   $('clear-filter').onclick=function(){resetFilters();render();};
