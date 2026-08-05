@@ -877,8 +877,11 @@ const rot={interval:0,rotate:32,color:'#6B7280',fontSize:9};
 const pctAxis={type:'value',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:v=>(v*100)+'%',color:'#6B7280',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}};
 function renderCharts(){
   if(!hasEC()||!charts.ch1)return;
-  const allNames=state.activities.map(a=>a.name);
-  const data1=state.activities.map(a=>{const isU=a.type==='utc';const o=curP().d[a.code]||{};const raw=isU?num(o.scan_cnt):num(o.hcp_pv);const value=scaleMode==='log'?(raw!=null&&raw>0?Math.log10(raw):null):raw;return {value,rawValue:raw,itemStyle:{color:isU?GOLD:RED}};});
+  // Keep every UTC campaign grouped at the far right for every period,
+  // including periods and campaigns added after this page was published.
+  const chartActs=[...BACT(),...UACT()];
+  const allNames=chartActs.map(a=>a.name);
+  const data1=chartActs.map(a=>{const isU=a.type==='utc';const o=curP().d[a.code]||{};const raw=isU?num(o.scan_cnt):num(o.hcp_pv);const value=scaleMode==='log'?(raw!=null&&raw>0?Math.log10(raw):null):raw;return {value,rawValue:raw,itemStyle:{color:isU?GOLD:RED}};});
   const logTick=v=>{const n=Math.pow(10,v);if(n>=1e8)return (n/1e8).toFixed(n>=1e9?0:1).replace(/\.0$/,'')+'亿';if(n>=1e4)return (n/1e4).toFixed(n>=1e5?0:1).replace(/\.0$/,'')+'万';return Math.round(n).toLocaleString();};
   charts.ch1.setOption({grid:{left:58,right:18,top:24,bottom:70},tooltip:{trigger:'axis',formatter:ps=>{if(!ps||!ps.length)return '';const p=ps[0],raw=p.data&&p.data.rawValue;return esc(p.axisValueLabel||p.axisValue)+'<br>'+p.marker+(raw==null?'—':Math.round(raw).toLocaleString());}},
     xAxis:{type:'category',data:allNames,...axisStyle,axisLabel:rot},
