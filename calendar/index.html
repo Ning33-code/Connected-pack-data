@@ -10,7 +10,7 @@
 :root{
   --red:#F40009;--red-dark:#C90008;--red-soft:#FFF0F1;--ink:#171513;--muted:#6F6A65;
   --hint:#A39D97;--line:#E8E4DF;--line-strong:#D1CBC5;--paper:#FFF;--canvas:#F4F2EF;
-  --shadow:0 7px 28px rgba(31,25,20,.06);--sans:Unity,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --shadow:0 7px 28px rgba(31,25,20,.06);--wechat:#087B5C;--ali:#1677FF;--sans:Unity,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
 }
 body{font-family:var(--sans);background:var(--canvas);color:var(--ink);font-size:14px;min-height:100vh}
 button,input,select{font:inherit}
@@ -32,16 +32,16 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 .metric{padding:13px 16px;border-right:1px solid var(--line);display:grid;grid-template-rows:18px 32px 18px;align-items:center}.metric:last-child{border-right:0}
 .metric-label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.15px}
 .metric-val{font-size:25px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums}.metric-val.red{color:var(--red)}.metric-sub{font-size:12px;color:var(--hint);line-height:18px}
-.brand-nav-wrap{margin-bottom:14px;padding:13px 14px 11px;border:1px solid var(--line);border-radius:9px;background:#FAF9F7}
+.brand-nav-wrap{margin-bottom:14px;padding:13px 14px 11px;border:1px solid var(--line);border-radius:9px;background:#FAF9F7;overflow-x:auto}
 .brand-nav-head{display:flex;align-items:center;margin-bottom:10px}.brand-nav-title{font-size:13px;font-weight:850}
-.brand-nav{display:grid;grid-template-columns:repeat(12,minmax(58px,1fr));gap:7px}
-.brand-chip{width:74px;height:74px;justify-self:center;border:1px solid transparent;background:#fff;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--muted);font-size:10px;font-weight:750;transition:.16s ease;position:relative}
+.brand-nav{display:grid;grid-template-columns:repeat(14,minmax(58px,1fr));gap:clamp(5px,.55vw,10px);min-width:980px}
+.brand-chip{width:74px;height:78px;justify-self:center;border:1px solid transparent;background:#fff;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);font-size:9px;font-weight:750;transition:.16s ease;position:relative}
 .brand-chip:hover{transform:translateY(-1px);border-color:var(--line-strong);box-shadow:0 4px 10px rgba(30,25,20,.06)}
 .brand-chip.active{border-color:var(--brand-color,var(--red));box-shadow:inset 0 0 0 1px var(--brand-color,var(--red));color:var(--ink);background:#fff}
 .brand-chip[data-brand=""].active{background:#171513;color:#fff;border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
 .brand-chip.active:not([data-brand=""]):after{content:"×";position:absolute;right:5px;top:3px;width:14px;height:14px;border-radius:50%;display:grid;place-items:center;background:var(--brand-color,var(--red));color:#fff;font-size:10px;font-weight:900}
-.brand-chip img{width:42px;height:42px;object-fit:contain}.brand-chip.text-logo span:first-child{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#DFF1FA;color:#24759B;font-size:9px;font-weight:900}
-.brand-chip[data-brand="MM"] img{transform:scale(1.18)}.brand-chip[data-brand="COSTA"] img{transform:scale(1.35)}.brand-chip[data-brand="Smart"] img{transform:scale(1.34)}
+.brand-chip img{width:40px;height:40px;object-fit:contain}.brand-chip.text-logo span:first-child{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#DFF1FA;color:#24759B;font-size:9px;font-weight:900}.brand-chip .brand-count{color:var(--hint)}
+.brand-chip[data-brand="MM"] img{transform:scale(1.18)}.brand-chip[data-brand="COSTA"] img{transform:scale(1.35)}.brand-chip[data-brand="Smart"] img{transform:scale(1.34)}.brand-chip[data-brand="SmartWater"] img{transform:scale(1.45)}.brand-chip[data-brand="ChunTea"] img{transform:scale(1.1)}
 .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 0 12px;background:transparent;border:0}
 .search-box{width:300px;height:38px;border:1px solid var(--line-strong);background:#fff;border-radius:6px;display:flex;align-items:center;padding:0 11px;gap:8px;color:var(--hint)}
 .search-box svg{width:15px;height:15px;flex:none}.search-box input{border:0!important;padding:0!important;width:100%!important;height:36px!important}
@@ -55,6 +55,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 .refresh:hover{background:var(--red);border-color:var(--red)}
 .refresh-icon{font-size:15px;display:inline-block;vertical-align:-1px;margin-right:4px}
 .status-text{display:none}
+.guide{display:grid;grid-template-columns:minmax(330px,.8fr) minmax(560px,1.4fr);gap:10px;margin-bottom:10px}.guide-panel{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#FAF9F7}.guide-title{font-size:11px;font-weight:850}.guide-item{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:10px}.guide-swatch{width:24px;height:10px;border-radius:3px;background:#F2C94C}.guide-swatch.pending{opacity:.62;border:1px dashed #746D66;background:repeating-linear-gradient(135deg,#F2C94C 0,#F2C94C 4px,#FFF4C7 4px,#FFF4C7 8px)}.guide-swatch.today{width:2px;height:17px;border-radius:0;background:rgba(244,0,9,.65)}.guide-panel:has(.routing-note){background:linear-gradient(135deg,#F7FBF9 0%,#F7FAFF 100%);border-color:#DCE7E2}.routing-note{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;font-size:13px;line-height:1.35;color:var(--ink)}.routing-note-item{display:flex;align-items:center;gap:8px;min-height:38px;padding:7px 10px;border:1px solid;border-radius:9px;font-weight:700;letter-spacing:.01em}.routing-note-item.wx{color:#075E48;background:#EEFAF5;border-color:#BDE8D6}.routing-note-item.ali{color:#0B5EC8;background:#EFF6FF;border-color:#C5DBFA}.routing-note-num{width:22px;height:22px;display:grid;place-items:center;flex:none;border-radius:50%;color:#fff;font-size:11px;font-style:normal;font-weight:900;background:#08A878}.routing-note-item.ali .routing-note-num{background:#1677FF}.routing-note-item strong{font-weight:900;color:inherit}
 .legend-row{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);overflow:hidden}
 .reading-key{margin-left:auto;display:flex;align-items:center;gap:9px;color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}.key-item{display:flex;align-items:center;gap:4px}.key-block{width:18px;height:8px;border-radius:2px;background:#D83A3A}.key-block.pending{opacity:.55;border:1px dashed #675C54;background-image:repeating-linear-gradient(135deg,#fff9 0,#fff9 4px,transparent 4px,transparent 8px)}
 .legend{display:flex;flex-wrap:nowrap;gap:7px 9px;padding:11px 0;min-width:0;overflow-x:auto;scrollbar-width:none}.legend::-webkit-scrollbar{display:none}
@@ -66,7 +67,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 .group-head.can-collapse{cursor:pointer;user-select:none}.group-head.can-collapse:hover{background:#EBE8E4}
 .fold-arrow{width:14px;color:var(--muted);font-size:10px;transition:transform .16s}.fold-arrow.open{transform:rotate(90deg)}
 .brand-badge{width:40px;height:40px;border-radius:9px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:none}.brand-badge img{width:36px;height:36px;object-fit:contain}.brand-badge.text{font-size:9px;font-weight:900}
-.brand-badge.brand-MM img{transform:scale(1.12)}.brand-badge.brand-COSTA img{transform:scale(1.32)}.brand-badge.brand-Smart img{transform:scale(1.28)}
+.brand-badge.brand-MM img{transform:scale(1.12)}.brand-badge.brand-COSTA img{transform:scale(1.32)}.brand-badge.brand-Smart img{transform:scale(1.28)}.brand-badge.brand-SmartWater img{transform:scale(1.45)}.brand-badge.brand-ChunTea img{transform:scale(1.1)}
 .group-title{font-size:16px;font-weight:850}.group-count{font-size:13px;color:var(--muted)}.group-count strong{font-size:17px;color:var(--red);margin-right:3px}
 .today-pill{display:flex;align-items:center;gap:5px;background:var(--red-soft);border:1px solid #F6B7BA;color:var(--red);padding:3px 8px;border-radius:99px;font-size:10px;font-weight:750}
 .today-pill:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red)}
@@ -75,15 +76,16 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 .label{width:220px;min-width:220px;padding:7px 11px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
 .label-head{font-size:11px;font-weight:800;color:var(--muted);justify-content:center}
 .src{font-size:12px;font-weight:800;color:var(--red)}.sku{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.track{min-width:630px;flex:1;height:34px;position:relative;background:#fff}
+.track{min-width:630px;flex:1;height:34px;position:relative;background:#fff}.track.has-alipay{height:62px}
 .month-track{height:26px;background:none}.month{position:absolute;top:0;height:26px;padding:5px 6px;border-right:1px solid var(--line);font-size:10px;color:var(--muted)}
 .seg{position:absolute;top:5px;height:24px;border-radius:3px;padding:0 6px;display:flex;align-items:center;font-size:10px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;color:#302B27;min-width:2px}
 .seg.pending{opacity:.58;border:1px dashed rgba(65,57,50,.38);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.52) 0,rgba(255,255,255,.52) 6px,rgba(255,255,255,.08) 6px,rgba(255,255,255,.08) 12px)}
+.seg.alipay{top:33px;height:24px;border-radius:3px;color:#fff;font-size:9px;font-weight:850}
 .today-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(244,0,9,.62);z-index:3;pointer-events:none}
 .empty{padding:50px 20px;text-align:center;color:var(--hint)}.empty b{display:block;color:var(--ink);font-size:14px;margin-bottom:5px}
 .tooltip{position:fixed;z-index:20;background:#111;color:#fff;border-radius:7px;padding:10px 12px;font-size:12px;line-height:1.7;box-shadow:0 8px 28px rgba(0,0,0,.2);pointer-events:none}
-@media(max-width:1080px){.brand-nav{grid-template-columns:repeat(6,1fr)}.legend-row{align-items:flex-start;flex-direction:column;gap:0}.reading-key{margin:0 0 10px}}
-@media(max-width:760px){.shell{padding:14px 10px 32px}.hero{padding:18px;min-height:148px;gap:12px}.hero-brand-logo{display:none}.hero-double-bottle{right:3%;height:145px;opacity:.45}.uad-credit{right:14px;bottom:11px}.panel{padding:12px}.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.metric:last-child{border-bottom:0}.brand-nav{grid-template-columns:repeat(4,1fr)}.search-box{width:100%}.filters select{width:100%}.toolbar-spacer{display:none}.label{width:175px;min-width:175px}}
+@media(max-width:1080px){.guide{grid-template-columns:1fr}.legend-row{align-items:flex-start;flex-direction:column;gap:0}.reading-key{margin:0 0 10px}}
+@media(max-width:760px){.shell{padding:14px 10px 32px}.hero{padding:18px;min-height:148px;gap:12px}.hero-brand-logo{display:none}.hero-double-bottle{right:3%;height:145px;opacity:.45}.uad-credit{right:14px;bottom:11px}.panel{padding:12px}.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.metric:last-child{border-bottom:0}.search-box{width:100%}.filters select{width:100%}.toolbar-spacer{display:none}.label{width:175px;min-width:175px}.route-rule{white-space:normal}}
 </style>
 </head>
 <body>
@@ -103,7 +105,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   <section class="panel">
     <div class="metrics">
       <div class="metric"><div class="metric-label">SKU 数量</div><div id="m-sku" class="metric-val red">—</div><div class="metric-sub">2025 年开始的产码记录</div></div>
-      <div class="metric"><div class="metric-label">Campaign 数量</div><div id="m-code" class="metric-val">—</div><div class="metric-sub">瓶身码落地的 Campaign</div></div>
+      <div class="metric"><div class="metric-label">Campaign 数量</div><div id="m-code" class="metric-val">—</div><div class="metric-sub">微信与支付宝活动合计</div></div>
       <div class="metric"><div class="metric-label">Data Version</div><div id="m-date" class="metric-val">正在读取</div><div class="metric-sub">Weekly update · 每周五</div></div>
     </div>
     <div class="brand-nav-wrap">
@@ -119,12 +121,15 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       <button id="clear-filter" class="clear-filter" type="button" disabled>× 清除筛选</button>
       <span class="toolbar-spacer"></span>
       <button class="refresh" id="refresh"><span class="refresh-icon">↻</span>刷新数据</button>
-      <button class="export-btn" id="export">↓ 导出 Excel</button>
+      <button class="export-btn" id="export">导出</button>
     </div>
     <span id="status" class="status-text">正在读取团队数据…</span>
+    <div class="guide">
+      <div class="guide-panel"><span class="guide-title">时间轴</span><span class="guide-item"><i class="guide-swatch"></i>实色 · 已切码</span><span class="guide-item"><i class="guide-swatch pending"></i>虚色 · 待切计划</span><span class="guide-item"><i class="guide-swatch today"></i>今日</span></div>
+      <div class="guide-panel"><div class="routing-note"><span class="routing-note-item wx"><i class="routing-note-num">1</i><span><strong>微信扫码</strong>：微信 OCP 无品牌活动则指向 <strong>Honor Wall</strong></span></span><span class="routing-note-item ali"><i class="routing-note-num">2</i><span><strong>支付宝扫码</strong>：支付宝 OCP 无品牌活动则指向<strong>首页</strong></span></span></div></div>
+    </div>
     <div class="legend-row">
       <div id="legend" class="legend"></div>
-      <span class="reading-key"><span class="key-item"><i class="key-block"></i>实色 = 活动进行中</span><span class="key-item"><i class="key-block pending"></i>虚色 = 待切码计划</span></span>
     </div>
     <div id="calendar"></div>
   </section>
@@ -133,6 +138,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 <script>
 (function(){
   'use strict';
+  var PLATFORM_WECHAT='wechat',PLATFORM_ALIPAY='alipay';
   var data={recs:[],cuts:[],camps:[],savedAt:''};
   var selectedBrand='',collapsedBrands={};
   var BRAND_DEFS=[
@@ -144,10 +150,11 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     {key:'Qoo',label:'Qoo',logo:'qoo.png',color:'#63C8EA',aliases:['Qoo']},
     {key:'COSTA',label:'Costa',logo:'costa.png',color:'#7A1E38',aliases:['COSTA','Costa']},
     {key:'Chunyue',label:'Chun Yue',logo:'chun-yue.png',color:'#5A2B82',aliases:['Chunyue','Chun Yue']},
-    {key:'ATH',label:'ATH',logo:'ath.png',color:'#19583C',aliases:['ATH']},
     {key:'YG',label:'YG',logo:'yg.png',color:'#F3A01D',aliases:['YG']},
     {key:'Smart',label:'醒目',logo:'smart.png',color:'#4C982E',aliases:['Smart','醒目']},
-    {key:'IceDew',label:'IceDew',logo:'icedew.png',color:'#76BEE0',aliases:['IceDew','Icedew']}
+    {key:'SmartWater',label:'smartwater',logo:'smartwater.png',color:'#2F7FBA',aliases:['SmartWater','Smart Water','smartwater']},
+    {key:'IceDew',label:'IceDew',logo:'icedew.png',color:'#76BEE0',aliases:['IceDew','Icedew']},
+    {key:'ChunTea',label:'淳茶舍',logo:'chun-tea.png',color:'#92754A',aliases:['淳茶舍','Chun Tea']}
   ];
   var CAMPAIGN_COLORS={
     '2026CNY':'#F40009',
@@ -167,12 +174,28 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   function esc(v){return String(v||'').replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   var HONOR_WALL_CODE='OCP HonorWall';
   var CAMPAIGN_ENDS={'2603MMWM':'2026-12-31','2607SPRITESPICYAI':'2026-12-31','2605QOOTY':'2026-12-30','2603CYALI':'2026-11-30','纯悦支付宝活动':'2026-11-30','2505SPRITESUMMERCAN':'2026-10-31','2605COKEFIFA':'2026-08-17','2603CCNSAI':'2026-05-31','2026CNY':'2026-03-04'};
-  function activityEndDate(code){var value=CAMPAIGN_ENDS[canonicalActivityCode(code)];return value?parseDate(value):null;}
-  function shortDate(d){return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+  function calendarDateText(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function calendarFallbackStart(activityEnd,todayDate){var planned=new Date(activityEnd);planned.setDate(planned.getDate()+1);return planned<todayDate?new Date(todayDate):planned;}
   function canonicalActivityCode(value){
     var raw=String(value||'').trim(),key=raw.replace(/[\s_-]+/g,'').toLowerCase();
     if(raw==='OCP HonorWall（活动结束后默认）')return HONOR_WALL_CODE;
     return key==='hw'||key==='honorwall'||key==='202412honorwall'||key==='ocphonorwall'?HONOR_WALL_CODE:raw;
+  }
+  function aliHome(value){var key=canonicalActivityCode(value).replace(/[\s_-]+/g,'').toLowerCase();return key==='ali首页'||key==='支付宝首页'||key==='小程序首页'||key==='alipayhome';}
+  function activityPlatform(campaign){
+    var platform=String(campaign&&campaign.platform||'').trim().toLowerCase(),code=canonicalActivityCode(campaign&&(campaign.code||campaign.name));
+    if(platform===PLATFORM_ALIPAY||code==='2603CYALI'||aliHome(code))return PLATFORM_ALIPAY;
+    return PLATFORM_WECHAT;
+  }
+  function cutPlatform(cut){
+    var platform=String(cut&&cut.platform||'').trim().toLowerCase();
+    if(platform===PLATFORM_WECHAT||platform===PLATFORM_ALIPAY)return platform;
+    var code=canonicalActivityCode(cut&&cut.code),campaign=data.camps.find(function(item){return canonicalActivityCode(item.code||item.name)===code;});
+    return campaign?activityPlatform(campaign):(code==='2603CYALI'||aliHome(code)?PLATFORM_ALIPAY:PLATFORM_WECHAT);
+  }
+  function activityEndDate(code,platform){
+    var key=canonicalActivityCode(code),campaign=data.camps.find(function(item){return canonicalActivityCode(item.code||item.name)===key&&activityPlatform(item)===platform;});
+    var value=campaign&&campaign.end||CAMPAIGN_ENDS[key];return value?parseDate(value):null;
   }
   function normalizeActivityData(input){
     input=input||{recs:[],cuts:[],camps:[],savedAt:''};
@@ -199,7 +222,9 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   }
   function prodYear(src){var r=sourceRec(src),y=parseInt(String(r&&r.date||'').slice(0,4),10);return y>=2025?y:0;}
   function brandDef(value){
-    var raw=String(value||'').trim();
+    var record=value&&typeof value==='object'?value:{brand:value},hay=[record.brand,record.sku_info].join(' ');
+    if(/smart\s*water|smartwater/i.test(hay))return BRAND_DEFS.find(function(b){return b.key==='SmartWater';});
+    var raw=String(record.brand||'').trim();
     return BRAND_DEFS.find(function(b){return b.aliases.some(function(a){return a.toLowerCase()===raw.toLowerCase();});})||{key:raw||'Other',label:raw||'Other',logo:'',color:'#8A817A',aliases:[raw]};
   }
   function brandOrder(value){
@@ -223,22 +248,28 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     return out;
   }
   function segments(src,bySource){
-    var start=new Date(2026,0,1),end=new Date(2026,11,31),days=365;
-    var ev=(bySource[src]||[]).slice().sort(function(a,b){return parseDate(a.cut_date)-parseDate(b.cut_date);}),out=[];
-    for(var i=0;i<ev.length;i++){
-      var s=parseDate(ev[i].cut_date),naturalEnd=i<ev.length-1?parseDate(ev[i+1].cut_date):new Date(2027,0,1),e=naturalEnd;
-      var code=canonicalActivityCode(ev[i].code||''),activityEnd=activityEndDate(code),defaultStart=null;
-      if(code!==HONOR_WALL_CODE&&activityEnd&&activityEnd>=s&&activityEnd<naturalEnd){defaultStart=new Date(activityEnd);defaultStart.setDate(defaultStart.getDate()+1);if((naturalEnd-defaultStart)/864e5>=7)e=defaultStart;}
-      var a=Math.max(0,Math.ceil((s-start)/864e5)),b=Math.min(days,Math.ceil((e-start)/864e5));
-      if(b<=0||a>=days||b<=a)continue;
-      var today=new Date();today.setHours(0,0,0,0);
-      out.push({code:ev[i].code||'—',start:ev[i].cut_date,end:i<ev.length-1?ev[i+1].cut_date:'持续中',left:a/days*100,width:(b-a)/days*100,pending:ev[i].status==='pending'||s>today});
-    }
-    for(var j=0;j<ev.length;j++){
-      var jc=canonicalActivityCode(ev[j].code||''),jd=jc!==HONOR_WALL_CODE?activityEndDate(jc):null,js=jd?new Date(jd):null;
-      if(!js)continue;js.setDate(js.getDate()+1);var jn=j<ev.length-1?parseDate(ev[j+1].cut_date):new Date(2027,0,1);if(js>=jn)continue;
-      var ja=Math.max(0,Math.ceil((js-start)/864e5)),jb=Math.min(days,Math.ceil((jn-start)/864e5));if(jb>0&&ja<days&&jb>ja&&(jn-js)/864e5>=7)out.push({code:HONOR_WALL_CODE+'（活动结束后默认）',start:shortDate(js),end:j<ev.length-1?ev[j+1].cut_date:'持续中',left:ja/days*100,width:(jb-ja)/days*100,pending:true,defaultFallback:true});
-    }
+    var start=new Date(2026,0,1),days=365,today=new Date(),out=[];today.setHours(0,0,0,0);
+    var events=(bySource[src]||[]).slice().sort(function(a,b){return parseDate(a.cut_date)-parseDate(b.cut_date);});
+    [PLATFORM_WECHAT,PLATFORM_ALIPAY].forEach(function(platform){
+      var platformEvents=events.filter(function(event){return cutPlatform(event)===platform;});
+      var actual=platformEvents.filter(function(event){var d=parseDate(event.cut_date);return(event.status||'done')==='done'&&d&&d<=today;});
+      var defaultFallbackAdded=false;
+      actual.forEach(function(event,index){
+        var s=parseDate(event.cut_date),naturalEnd=index<actual.length-1?parseDate(actual[index+1].cut_date):new Date(2027,0,1),e=naturalEnd;
+        var code=canonicalActivityCode(event.code||''),activityEnd=activityEndDate(code,platform),fallbackStart=null;
+        if(index===actual.length-1&&platform===PLATFORM_WECHAT&&code!==HONOR_WALL_CODE&&activityEnd){fallbackStart=calendarFallbackStart(activityEnd,today);if(fallbackStart>s&&fallbackStart<e)e=fallbackStart;}
+        var left=Math.max(0,Math.ceil((s-start)/864e5)),right=Math.min(days,Math.ceil((e-start)/864e5));
+        if(right>0&&left<days&&right>left&&!(platform===PLATFORM_ALIPAY&&aliHome(code)))out.push({code:code||'—',platform:platform,start:event.cut_date,end:index<actual.length-1?actual[index+1].cut_date:(fallbackStart?calendarDateText(fallbackStart):'持续中'),left:left/days*100,width:(right-left)/days*100,pending:false});
+        if(fallbackStart){var fallbackLeft=Math.max(0,Math.ceil((fallbackStart-start)/864e5));if(fallbackLeft<days){out.push({code:HONOR_WALL_CODE,platform:PLATFORM_WECHAT,start:calendarDateText(fallbackStart),end:'待执行',left:fallbackLeft/days*100,width:(days-fallbackLeft)/days*100,pending:true,defaultFallback:true});defaultFallbackAdded=true;}}
+      });
+      platformEvents.filter(function(event){return(event.status||'done')==='pending';}).forEach(function(event){
+        var s=parseDate(event.cut_date),code=canonicalActivityCode(event.code||''),end=activityEndDate(code,platform)||new Date(2027,0,1);
+        if(defaultFallbackAdded&&platform===PLATFORM_WECHAT&&code===HONOR_WALL_CODE)return;
+        if(end<=s)end=new Date(s.getTime()+864e5);var left=Math.max(0,Math.ceil((s-start)/864e5)),right=Math.min(days,Math.ceil((end-start)/864e5));
+        if(right<=0||left>=days||platform===PLATFORM_ALIPAY&&aliHome(code))return;
+        out.push({code:code||'—',platform:platform,start:event.cut_date,end:calendarDateText(end),left:left/days*100,width:Math.max(1,(right-left)/days*100),pending:true});
+      });
+    });
     return out;
   }
   function filtered(){
@@ -246,14 +277,14 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     var srcs=Object.keys(by).filter(function(src){
       var r=sourceRec(src),y=prodYear(src),sg=segments(src,by);
       if(!r||!y||!sg.length)return false;
-      if(selectedBrand&&brandDef(r.brand).key!==selectedBrand)return false;
+      if(selectedBrand&&brandDef(r).key!==selectedBrand)return false;
       if(code&&!sg.some(function(x){return canonicalActivityCode(x.code)===code;}))return false;
       var hay=[src,r.brand,r.sku_info,r.flavor,r.sku,r.pkg].join(' ').toLowerCase();
       return !q||hay.includes(q);
     });
     srcs.sort(function(a,b){
       var ra=sourceRec(a),rb=sourceRec(b);
-      var bo=brandOrder(ra.brand)-brandOrder(rb.brand);if(bo)return bo;
+      var bo=brandOrder(ra)-brandOrder(rb);if(bo)return bo;
       var da=parseDate(ra.date),db=parseDate(rb.date);
       var ta=da?da.getTime():Number.MAX_SAFE_INTEGER,tb=db?db.getTime():Number.MAX_SAFE_INTEGER;
       return ta-tb||a.localeCompare(b);
@@ -265,7 +296,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     var srcs=data.recs.filter(function(r){
       var src=String(r.utm_source||'').trim(),y=prodYear(src),events=by[src]||[];
       if(!src||!y||!events.some(function(c){var d=parseDate(c.cut_date);return d&&d.getFullYear()>=2025&&d.getFullYear()<=2026;}))return false;
-      if(selectedBrand&&brandDef(r.brand).key!==selectedBrand)return false;
+      if(selectedBrand&&brandDef(r).key!==selectedBrand)return false;
       if(code&&!events.some(function(c){return c.code===code;}))return false;
       var hay=[src,r.brand,r.sku_info,r.flavor,r.sku,r.pkg].join(' ').toLowerCase();
       return !q||hay.includes(q);
@@ -273,7 +304,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     srcs=Array.from(new Set(srcs));
     srcs.sort(function(a,b){
       var ra=sourceRec(a),rb=sourceRec(b);
-      var bo=brandOrder(ra.brand)-brandOrder(rb.brand);if(bo)return bo;
+      var bo=brandOrder(ra)-brandOrder(rb);if(bo)return bo;
       var da=parseDate(ra.date),db=parseDate(rb.date);
       var ta=da?da.getTime():Number.MAX_SAFE_INTEGER,tb=db?db.getTime():Number.MAX_SAFE_INTEGER;
       return ta-tb||a.localeCompare(b);
@@ -331,24 +362,27 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   }
   async function exportExcel(){
     var btn=$('export'),f=exportSources();
-    if(!f.srcs.length){alert('当前筛选下没有可导出的 Calendar 数据');return;}
+    f.srcs=f.srcs.filter(function(src){return(f.by[src]||[]).some(function(c){return cutPlatform(c)===PLATFORM_WECHAT;});});
+    if(!f.srcs.length){alert('当前筛选下没有可导出的微信扫码核验数据');return;}
     if(typeof ExcelJS==='undefined'){alert('Excel 组件未加载，请确认 vendor 文件夹与 index.html 位于同一目录');return;}
     btn.disabled=true;btn.textContent='正在生成…';
     try{
-      var wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Calendar 2025-2026',{views:[{state:'frozen',xSplit:4,ySplit:1}]});
+      var wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('微信扫码核验表',{views:[{state:'frozen',xSplit:5,ySplit:2}]});
       wb.creator='UAD Connected Pack';wb.created=new Date();
       var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));
       ws.columns=[
         {header:'产码时间',key:'date',width:13},{header:'品牌',key:'brand',width:12},
-        {header:'SKU信息',key:'sku',width:34},{header:'UTM-SOURCE',key:'source',width:17}
+        {header:'SKU信息',key:'sku',width:34},{header:'UTM_SOURCE',key:'source',width:17},{header:'当前微信扫码应到',key:'currentWechat',width:24}
       ].concat(months.map(function(mm){return{header:mm.getFullYear()+'-'+String(mm.getMonth()+1).padStart(2,'0'),width:15};}));
-      for(var hiddenMonth=0;hiddenMonth<12;hiddenMonth++)ws.getColumn(5+hiddenMonth).hidden=true;
-      ws.getRow(1).height=23;ws.getRow(1).eachCell(function(cell){
+      ws.insertRow(1,['本表仅展示微信端的落地活动情况，支付宝端活动不在本表展示。']);ws.mergeCells(1,1,1,29);
+      var notice=ws.getCell(1,1);notice.font={name:'微软雅黑',bold:true,size:12,color:{argb:'FF9A1A1F'}};notice.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF3D6'}};notice.alignment={vertical:'middle'};ws.getRow(1).height=24;
+      for(var hiddenMonth=0;hiddenMonth<12;hiddenMonth++)ws.getColumn(6+hiddenMonth).hidden=true;
+      ws.getRow(2).height=23;ws.getRow(2).eachCell(function(cell){
         cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF111111'}};
         cell.font={bold:true,size:10,color:{argb:'FFFFFFFF'}};
         cell.alignment={horizontal:'center',vertical:'middle'};
       });
-      ws.autoFilter={from:'A1',to:'AB1'};
+      ws.autoFilter={from:'A2',to:'AC2'};
       var today=new Date();today.setHours(0,0,0,0);
       function fmt(d){return d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');}
       function pale(code){
@@ -356,24 +390,26 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
         return [r,g,b].map(function(v){return Math.round(v+(255-v)*mix).toString(16).padStart(2,'0');}).join('').toUpperCase();
       }
       f.srcs.forEach(function(src){
-        var r=sourceRec(src)||{},events=(f.by[src]||[]).map(function(c){
+        var r=sourceRec(src)||{},events=(f.by[src]||[]).filter(function(c){return cutPlatform(c)===PLATFORM_WECHAT;}).map(function(c){
           return{code:String(c.code||'—'),d:parseDate(c.cut_date),status:c.status||'done'};
         }).filter(function(e){return e.d;}).sort(function(a,b){return a.d-b.d;});
+        var current=null;events.forEach(function(e){if(e.status==='done'&&e.d<=today)current=e;});
         var timeline=[];
         months.forEach(function(mm){
           var monthEnd=new Date(mm.getFullYear(),mm.getMonth()+1,0,23,59,59),active=null;
           events.forEach(function(e){if(e.d<=monthEnd)active=e;});
           timeline.push(active?{code:active.code,date:fmt(active.d),key:active.code+'|'+active.d.getTime(),pending:active.status==='pending'||active.d>today}:null);
         });
-        var row=ws.addRow([r.date||'',r.brand||'',r.sku_info||'',src].concat(months.map(function(){return'';})));row.height=34;
+        var row=ws.addRow([r.date||'',r.brand||'',r.sku_info||'',src,current?current.code:'未找到已生效微信切码'].concat(months.map(function(){return'';})));row.height=34;
         row.getCell(1).alignment={horizontal:'center',vertical:'middle'};
         row.getCell(3).alignment={vertical:'middle',wrapText:true};
         row.getCell(4).font={bold:true,color:{argb:'FFF40009'}};
+        row.getCell(5).font={bold:true,color:{argb:'FF087B5C'}};row.getCell(5).alignment={vertical:'middle',wrapText:true};
         var i=0;
         while(i<timeline.length){
           var active=timeline[i];if(!active){i++;continue;}
           var j=i;while(j+1<timeline.length&&timeline[j+1]&&timeline[j+1].key===active.key)j++;
-          var c1=5+i,c2=5+j,hex=pale(active.code);
+          var c1=6+i,c2=6+j,hex=pale(active.code);
           for(var c=c1;c<=c2;c++){
             var cell=row.getCell(c);cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+hex}};
             cell.font={bold:true,size:9,color:{argb:'FF302B27'},italic:active.pending};
@@ -384,8 +420,8 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
           i=j+1;
         }
       });
-      var note=ws.addRow(['导出范围：当前网页筛选结果；Calendar 时间线固定为 2025-01 至 2026-12。']);
-      ws.mergeCells(note.number,1,note.number,28);note.font={italic:true,size:9,color:{argb:'FF6F6A65'}};
+      var note=ws.addRow(['导出范围：当前网页筛选结果；月度色块仅展示微信路由，时间线固定为 2025-01 至 2026-12。']);
+      ws.mergeCells(note.number,1,note.number,29);note.font={italic:true,size:9,color:{argb:'FF6F6A65'}};
       ws.eachRow(function(row){
         row.eachCell({includeEmpty:true},function(cell){
           cell.font=Object.assign({name:'微软雅黑'},cell.font||{});
@@ -394,10 +430,10 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       });
       var buf=await wb.xlsx.writeBuffer(),blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
       var a=document.createElement('a');a.href=URL.createObjectURL(blob);
-      a.download='Label_Code_Campaign_Calendar_'+new Date().toISOString().slice(0,10)+'.xlsx';
+      a.download='微信扫码核验表_'+new Date().toISOString().slice(0,10)+'.xlsx';
       document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
     }catch(err){alert('导出失败：'+err.message);}
-    finally{btn.disabled=false;btn.textContent='↓ 导出 Excel';}
+    finally{btn.disabled=false;btn.textContent='导出';}
   }
   function monthHeader(){
     var s='<div class="gantt-head"><div class="label label-head">SKU 信息</div><div class="track month-track">';
@@ -411,24 +447,25 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     f.srcs.forEach(function(src){segments(src,f.by).forEach(function(x){codes.add(canonicalActivityCode(x.code));});});
     var allBy=codeEvents(),allSources=Object.keys(allBy).filter(function(src){return sourceRec(src)&&prodYear(src)&&segments(src,allBy).length;});
     var allCodes=new Set();allSources.forEach(function(src){segments(src,allBy).forEach(function(x){allCodes.add(canonicalActivityCode(x.code));});});
-    $('m-sku').textContent=allSources.length;$('m-code').textContent=allCodes.size;
+    $('m-sku').textContent=allSources.length;$('m-code').textContent=Array.from(allCodes).filter(function(code){return code!==HONOR_WALL_CODE&&!aliHome(code);}).length;
     $('legend').innerHTML='<span class="legend-title">Campaign 色标</span>'+Array.from(codes).sort().map(function(c){return '<span class="legend-item"><i class="swatch" style="background:'+color(c)+'"></i>'+esc(c)+'</span>';}).join('');
     $('clear-filter').disabled=!selectedBrand&&!$('q').value.trim()&&!$('code').value;
     Array.prototype.forEach.call($('brand-nav').querySelectorAll('.brand-chip'),function(el){el.classList.toggle('active',el.dataset.brand===selectedBrand);});
     var html='';
     var presentBrands=[];
-    f.srcs.forEach(function(src){var r=sourceRec(src),def=brandDef(r&&r.brand);if(!presentBrands.some(function(x){return x.key===def.key;}))presentBrands.push(def);});
+    f.srcs.forEach(function(src){var r=sourceRec(src),def=brandDef(r);if(!presentBrands.some(function(x){return x.key===def.key;}))presentBrands.push(def);});
     presentBrands.sort(function(a,b){return brandOrder(a.key)-brandOrder(b.key)||a.label.localeCompare(b.label);});
     presentBrands.forEach(function(def,index){
-      var list=f.srcs.filter(function(src){var r=sourceRec(src);return r&&brandDef(r.brand).key===def.key;});if(!list.length)return;
+      var list=f.srcs.filter(function(src){var r=sourceRec(src);return r&&brandDef(r).key===def.key;});if(!list.length)return;
       if(typeof collapsedBrands[def.key]==='undefined')collapsedBrands[def.key]=selectedBrand?false:index>0;
       var collapsed=selectedBrand?false:collapsedBrands[def.key];
       var logo=def.logo?'<img src="assets/brands/'+esc(def.logo)+'" alt="">':'<span>'+esc(def.label.slice(0,3))+'</span>';
       html+='<section class="group" style="--group-color:'+def.color+'"><header class="group-head can-collapse" onclick="toggleClientBrand(\''+esc(def.key)+'\')" title="点击'+(collapsed?'展开':'收起')+'"><span class="fold-arrow'+(collapsed?'':' open')+'">▶</span><span class="brand-badge brand-'+esc(def.key)+(def.logo?'':' text')+'">'+logo+'</span><span class="group-title">'+esc(def.label)+'</span><span class="group-count"><strong>'+list.length+'</strong> 个 SKU</span></header><div class="gantt" style="'+(collapsed?'display:none':'')+'">'+monthHeader();
       list.forEach(function(src){
-        var r=sourceRec(src),sg=segments(src,f.by);
-        html+='<div class="gantt-row"><div class="label" title="'+esc((r.sku_info||''))+'"><span class="src">'+esc(src)+'</span><span class="sku">'+esc((r.sku_info||''))+'</span></div><div class="track">';
-        sg.forEach(function(x){html+='<span class="seg'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" data-fallback="'+(x.defaultFallback?'1':'0')+'" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+';color:'+textColor(x.code)+'">'+esc(x.code)+'</span>';});
+        var r=sourceRec(src),sg=segments(src,f.by),hasAlipay=sg.some(function(x){return x.platform===PLATFORM_ALIPAY;});
+        html+='<div class="gantt-row"><div class="label" title="'+esc((r.sku_info||''))+'"><span class="src">'+esc(src)+'</span><span class="sku">'+esc((r.sku_info||''))+'</span></div><div class="track'+(hasAlipay?' has-alipay':'')+'">';
+        sg.filter(function(x){return x.platform===PLATFORM_WECHAT;}).forEach(function(x){html+='<span class="seg'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" data-fallback="'+(x.defaultFallback?'1':'0')+'" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+';color:'+textColor(x.code)+'">'+esc(x.code)+'</span>';});
+        sg.filter(function(x){return x.platform===PLATFORM_ALIPAY;}).forEach(function(x){html+='<span class="seg alipay'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" data-fallback="0" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+'">支付宝 · '+esc(x.code)+'</span>';});
         var n=new Date();if(n.getFullYear()===2026){var d=Math.ceil((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(2026,0,1))/864e5);html+='<i class="today-line" style="left:'+(d/365*100)+'%"></i>';}
         html+='</div></div>';
       });
@@ -445,13 +482,12 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   function buildFilters(){
     var codes=Array.from(new Set(data.cuts.map(function(c){return c.code;}).filter(Boolean))).sort();
     $('code').innerHTML='<option value="">全部活动</option>'+codes.map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
-    var present=new Set(data.recs.map(function(r){return brandDef(r.brand).key;}));
-    var defs=BRAND_DEFS.filter(function(b){return present.has(b.key);});
     var by=codeEvents(),totalSources=Object.keys(by).filter(function(src){return sourceRec(src)&&prodYear(src)&&segments(src,by).length;});
+    var counts={};totalSources.forEach(function(src){var key=brandDef(sourceRec(src)).key;counts[key]=(counts[key]||0)+1;});
     var nav='<button class="brand-chip active" type="button" data-brand="" style="--brand-color:#F40009"><span style="font-size:16px;font-weight:900">ALL</span><span>查看全部</span><span>'+totalSources.length+'</span></button>';
-    nav+=defs.map(function(b){
+    nav+=BRAND_DEFS.map(function(b){
       var visual=b.logo?'<img src="assets/brands/'+esc(b.logo)+'" alt="">':'<span>'+esc(b.label.slice(0,3))+'</span>';
-      return '<button class="brand-chip'+(b.logo?'':' text-logo')+'" type="button" data-brand="'+esc(b.key)+'" style="--brand-color:'+b.color+'">'+visual+'<span>'+esc(b.label)+'</span></button>';
+      return '<button class="brand-chip'+(b.logo?'':' text-logo')+'" type="button" data-brand="'+esc(b.key)+'" style="--brand-color:'+b.color+'">'+visual+'<span>'+esc(b.label)+'</span><span class="brand-count">'+(counts[b.key]||0)+' SKU</span></button>';
     }).join('');
     $('brand-nav').innerHTML=nav;
     Array.prototype.forEach.call($('brand-nav').querySelectorAll('.brand-chip'),function(btn){
