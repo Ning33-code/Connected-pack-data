@@ -54,21 +54,24 @@ var Fr={},Gr={};var Wr,Hr=function(){function t(t,e,n){var i=this;this._sleepAft
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --red:#F40009;--red-d:#C40007;--gold:#E8A33D;--dark:#1B1B1F;--bg:#F4F4F6;--card:#fff;
-  --muted:#6B7280;--hint:#9AA0A6;--line:#E7E7EA;--oth:#BFC3CA;--good:#1F9D55;
-  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  --red:#EF242C;--red-d:#CE1F26;--red-soft:#FDEDEE;--gold:#E69A37;--navy:#283D57;--dark:#1A1F26;--bg:#F5F6F7;--card:#FFF;
+  --muted:#747E89;--hint:#9AA3AD;--line:#E7E9EC;--line-strong:#D6DAE0;--card-line:#2A344113;--oth:#B9C0C8;--good:#1F9D55;--ali:#1677FF;
+  --shadow:0 14px 38px #1c2b4314;--shadow-sm:0 8px 22px #1d2b400e;
+  --sans:'TCCC UnityText Dashboard','FZ ZhengHei Dashboard','Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',Arial,sans-serif;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--dark);font-size:13px;line-height:1.5;padding-bottom:50px}
-.hdr{background:var(--dark);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--red),#E8A33D,#71C7C7) 1}
-.hdr .bottle-mark{width:34px;height:46px;position:relative;overflow:hidden;flex-shrink:0}
-.hdr .bottle-mark img{position:absolute;width:85px;height:auto;left:-20px;top:0;max-width:none}
-.hdr h1{font-size:17px;font-weight:600;letter-spacing:-0.2px}
-.hdr .sub{font-size:11px;color:#A8A8B0;margin-top:1px}
-.hdr-copy{position:relative;z-index:2}
-.wrap{max-width:1500px;margin:0 auto;padding:18px 24px}
+.hdr{color:#fff;background:linear-gradient(112deg,#b70f1e 0%,#ed2938 43%,#f7941e 76%,#f6be00 100%);border-radius:20px;min-height:156px;display:flex;align-items:center;position:relative;overflow:hidden;box-shadow:0 22px 48px #be1b2630;margin-bottom:18px}
+.hdr:before{content:"";position:absolute;top:-140%;right:-3%;width:350px;height:350px;border:1px solid #ffffff2b;border-radius:50%;box-shadow:0 0 0 44px #ffffff0b,0 0 0 90px #ffffff06}
+.hdr-copy{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:27px 36px}
+.hdr .ocp-logo{width:158px;height:auto;display:block;margin-bottom:10px}
+.hdr h1{font-size:30px;font-weight:850;line-height:1.08;letter-spacing:-.55px}
+.hdr .sub{font-size:13px;color:#FFFFFFD9;margin-top:8px}
+.hdr .bottle-mark{position:absolute;right:6.5%;bottom:-16px;height:170px;width:auto;z-index:1;opacity:.96;pointer-events:none}
+.hdr .bottle-mark img{width:100%;height:auto;display:block}
+.wrap{max-width:1540px;margin:0 auto;padding:22px 28px 44px}
 .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .toolbar label{font-size:12px;color:var(--muted);font-weight:500}
-select,.btn{font-family:var(--sans);font-size:12px;border:1px solid var(--line);background:#fff;color:var(--dark);border-radius:8px;padding:7px 12px;cursor:pointer;outline:none}
+select,.btn{font-family:var(--sans);font-size:12px;border:1px solid var(--line);background:#fff;color:var(--dark);border-radius:7px;padding:7px 12px;cursor:pointer;outline:none}
 select:focus{border-color:var(--red)}
 .btn:hover{background:var(--bg);border-color:var(--hint)}
 .btn-r{background:var(--red);color:#fff;border-color:var(--red)}.btn-r:hover{background:var(--red-d);border-color:var(--red-d)}
@@ -77,18 +80,18 @@ select:focus{border-color:var(--red)}
 .btn-d{background:var(--dark);color:#fff;border-color:var(--dark)}
 .spacer{margin-left:auto}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:18px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+.kpi{background:var(--card);border:1px solid var(--card-line);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow-sm)}
 .kpi.hl{background:var(--dark);border-color:var(--dark)}
 .kpi.hl .lab{color:#B9B9C2}.kpi.hl .num{color:#fff}
-.kpi .lab{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:6px}
-.kpi .num{font-size:25px;font-weight:700;color:var(--red);line-height:1;letter-spacing:-0.5px}
+.kpi .lab{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.15px;margin-bottom:6px}
+.kpi .num{font-size:25px;font-weight:850;color:var(--red);line-height:1;letter-spacing:-0.5px;font-variant-numeric:tabular-nums}
 .kpi .num.dark{color:var(--dark)}
 .kpi .u{font-size:12px;color:var(--hint);font-weight:500;margin-left:2px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,0.04);margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:18px}
 .card-h{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap;gap:8px;position:relative}
-.card-h h2{font-size:13px;font-weight:600}
+.card-h h2{font-size:13px;font-weight:800}
 .card-h h2 .tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle}
-.tag-cp{background:#FEEBEC;color:var(--red)}.tag-utc{background:#FBF1E1;color:#B5791E}
+.tag-cp{background:var(--red-soft);color:var(--red)}.tag-utc{background:#FBF1E1;color:#B5791E}
 .card-h .note{font-size:11px;color:var(--hint)}
 .card-h .btn{margin-left:auto}
 .tbl-scroll{overflow-x:auto}
@@ -130,9 +133,9 @@ td.share{color:var(--red)}
 td.lead.pos{color:var(--good)}td.lead.neg{color:var(--red)}
 .addbtn{margin:0;padding:11px 18px;border-top:1px solid var(--line)}
 .charts{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.chart-card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(0,0,0,0.04);padding:14px 16px}
+.chart-card{background:var(--card);border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--shadow);padding:14px 16px}
 .chart-card .ch-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px;flex-wrap:wrap}
-.chart-card h3{font-size:12px;font-weight:600}
+.chart-card h3{font-size:12px;font-weight:800}
 .chart-card h3 small{font-weight:400;color:var(--hint);margin-left:6px}
 .chart-card .ch{width:100%;height:300px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
@@ -169,8 +172,11 @@ td.lead.pos{color:var(--good)}td.lead.neg{color:var(--red)}
 #mau-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:820px){
   .wrap{padding:14px 12px}
-  .hdr{padding:12px 14px;gap:10px}
-  .hdr h1{font-size:15px}
+  .hdr{min-height:142px;border-radius:16px}
+  .hdr-copy{padding:24px}
+  .hdr h1{font-size:24px}
+  .hdr .ocp-logo{width:130px}
+  .hdr .bottle-mark{display:none}
   .kpis{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
   .kpi{padding:13px 14px}.kpi .num{font-size:22px}
   .card-h{padding:11px 14px}.card-h .note{flex-basis:100%}
@@ -188,7 +194,7 @@ td.lead.pos{color:var(--good)}td.lead.neg{color:var(--red)}
   .chart-card{padding:11px}.chart-card .ch{height:250px}.card-h h2{font-size:12px}
 }
 #formula-box{font-size:11px;color:var(--muted);line-height:1.95;padding:14px 18px;white-space:pre-line}
-details summary{cursor:pointer;font-size:12px;font-weight:600;padding:14px 18px;list-style:none}
+details summary{cursor:pointer;font-size:12px;font-weight:800;padding:14px 18px;list-style:none}
 details summary::-webkit-details-marker{display:none}
 details summary::before{content:'▸ ';color:var(--red)}details[open] summary::before{content:'▾ '}
 .lp-grid{padding:6px 18px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
@@ -220,15 +226,15 @@ details summary::before{content:'▸ ';color:var(--red)}details[open] summary::b
 </head>
 <body>
 <div id="toast" class="">已导出可分享看板（含数据·离线可用）</div>
-<header class="hdr">
-  <div class="bottle-mark" aria-hidden="true"><img src="assets/coke-bottle.png" alt=""></div>
-  <div class="hdr-copy">
-    <h1>Connected Pack · 流量看板</h1>
-    <div class="sub" data-lk="appSub">Connected Pack ＝ 瓶身码 ＋ UTC 盖内码</div>
-  </div>
-</header>
-
 <div class="wrap">
+  <header class="hdr">
+    <div class="hdr-copy">
+      <img class="ocp-logo" src="assets/ocp-logo-white.png" alt="可口可乐吧">
+      <h1>2026 OCP Connected Pack Traffic</h1>
+      <div class="sub" data-lk="appSub">Connected Pack ＝ 瓶身码 ＋ UTC 盖内码</div>
+    </div>
+    <div class="bottle-mark" aria-hidden="true"><img src="assets/coke-bottle.png" alt=""></div>
+  </header>
   <div id="cdn-warn" class="warn">⚠ 图表库未能加载（断网或被网络拦截）。数据表仍可用；联网后刷新即可出图。</div>
 
   <div class="toolbar">
@@ -393,7 +399,7 @@ details summary::before{content:'▸ ';color:var(--red)}details[open] summary::b
     </div>
     <div class="chart-card"><div class="ch-h"><h3><span data-lk="chart2">By campaign · connected pack流量%</span></h3></div><div id="ch2" class="ch" _echarts_instance_="ec_1782142710920" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;"><div style="position: relative; width: 673px; height: 300px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1009" height="450" style="position: absolute; left: 0px; top: 0px; width: 673px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
     <div class="chart-card"><div class="ch-h"><h3><span data-lk="chart3">互动率 · 瓶身码 vs 其他渠道</span></h3></div><div id="ch3" class="ch" _echarts_instance_="ec_1782142710921" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;"><div style="position: relative; width: 673px; height: 300px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1009" height="450" style="position: absolute; left: 0px; top: 0px; width: 673px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
-    <div class="chart-card"><div class="ch-h"><h3>MAU 贡献 · 瓶身码对各端月活 <small style="font-weight:400;color:#9AA0A6">柱=UV人数 · 线=贡献%</small></h3></div><div id="chMau" class="ch" _echarts_instance_="ec_1782142710922" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;"><div style="position: relative; width: 673px; height: 300px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1009" height="450" style="position: absolute; left: 0px; top: 0px; width: 673px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
+    <div class="chart-card"><div class="ch-h"><h3>MAU 贡献 · 瓶身码对各端月活 <small style="font-weight:400;color:#9AA3AD">柱=UV人数 · 线=贡献%</small></h3></div><div id="chMau" class="ch" _echarts_instance_="ec_1782142710922" style="user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;"><div style="position: relative; width: 673px; height: 300px; padding: 0px; margin: 0px; border-width: 0px; cursor: default;"><canvas data-zr-dom-id="zr_0" width="1009" height="450" style="position: absolute; left: 0px; top: 0px; width: 673px; height: 300px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div></div>
   </div>
 
   <section class="card transition-card" id="connected-pack-transition">
@@ -499,8 +505,9 @@ var EDIT_MODE=(typeof location!=='undefined')&&(location.protocol==='file:'||loc
 VIEW_ONLY=(typeof window!=='undefined'&&window.__CP_VIEWONLY__)?true:!EDIT_MODE;
 function pickInit(){
   if(typeof window!=='undefined'&&window.__CP_EMBED__)return window.__CP_EMBED__;
-  if(EDIT_MODE){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v);}catch(e){}}
+  // 两种模式都优先用已发布的 data.js（线上真源），避免本机旧草稿盖住最新数据
   if(typeof window!=='undefined'&&window.__CP_DATA__)return window.__CP_DATA__;
+  if(EDIT_MODE){try{var v=localStorage.getItem(KEY);if(v)return JSON.parse(v);}catch(e){}}
   return EMBEDDED_DATA||seed();
 }
 let state=ensureModel(pickInit());
@@ -554,12 +561,12 @@ function getSortedActs(acts, table){
     return (va-vb)*sortDir;
   });
 }
-const L=k=>DEFAULT_LABELS[k];
+const L=k=>(state&&state.labels&&state.labels[k]!==undefined)?state.labels[k]:DEFAULT_LABELS[k];
 const curP=()=>state.periods[state.cur];
 const BACT=()=>state.activities.filter(a=>a.type!=='utc');
 const UACT=()=>state.activities.filter(a=>a.type==='utc');
 const num=v=>(v===null||v===undefined||v==='')?null:(isNaN(+v)?null:+v);
-const RED='#F40009',GOLD='#E8A33D',GRY='#BFC3CA';
+const RED='#EF242C',GOLD='#E69A37',GRY='#B9C0C8';
 const ro=()=>VIEW_ONLY?'readonly':'';
 const dnorm=s=>{s=String(s||'').trim();if(!s)return '';s=s.replace(/[\/.]/g,'-');const m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);return m?m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0'):s;};
 const dkey=s=>{const m=String(s||'').replace(/[\/.]/g,'-').match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);return m?+(m[1]+m[2].padStart(2,'0')+m[3].padStart(2,'0')):null;};
@@ -679,17 +686,17 @@ function renderMau(){
   }
   if(hasEC()&&charts.chMau){
     charts.chMau.setOption({grid:{left:46,right:44,top:46,bottom:24},
-      legend:{top:0,textStyle:{fontSize:9,color:'#6B7280'},itemWidth:12,itemGap:8,data:['微信瓶身码UV','支付宝瓶身码UV','微信瓶身码流量%','支付宝瓶身码流量%']},
+      legend:{top:0,textStyle:{fontSize:9,color:'#747E89'},itemWidth:12,itemGap:8,data:['微信瓶身码UV','支付宝瓶身码UV','微信瓶身码流量%','支付宝瓶身码流量%']},
       tooltip:{trigger:'axis',formatter:function(ps){var s=ps[0].axisValue;ps.forEach(function(p){if(p.value==null)return;var val=(p.seriesName.indexOf('%')>=0)?(p.value*100).toFixed(1)+'%':Math.round(p.value).toLocaleString();s+='<br>'+p.marker+p.seriesName+'：'+val;});return s;}},
-      xAxis:{type:'category',data:m.map(function(x){return x.month;}),axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{color:'#6B7280',fontSize:10,formatter:function(v){var mm3=String(v).match(/-(\d{1,2})$/);return mm3?(+mm3[1])+'月':v;}}},
+      xAxis:{type:'category',data:m.map(function(x){return x.month;}),axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{color:'#747E89',fontSize:10,formatter:function(v){var mm3=String(v).match(/-(\d{1,2})$/);return mm3?(+mm3[1])+'月':v;}}},
       yAxis:[
-        {type:'value',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{color:'#6B7280',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}},
-        {type:'value',position:'right',scale:false,axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:function(v){return (v*100).toFixed(0)+'%';},color:'#6B7280',fontSize:10},splitLine:{show:false}}
+        {type:'value',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{color:'#747E89',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}},
+        {type:'value',position:'right',scale:false,axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:function(v){return (v*100).toFixed(0)+'%';},color:'#747E89',fontSize:10},splitLine:{show:false}}
       ],
       series:[
         {name:'微信瓶身码UV',type:'bar',yAxisIndex:0,data:m.map(function(x){return x.wx_label;}),itemStyle:{color:'#F7B7C8',borderRadius:[3,3,0,0]},barMaxWidth:18},
         {name:'支付宝瓶身码UV',type:'bar',yAxisIndex:0,data:m.map(function(x){return x.ali_chunyue;}),itemStyle:{color:'#F3D48A',borderRadius:[3,3,0,0]},barMaxWidth:18},
-        {name:'微信瓶身码流量%',type:'line',yAxisIndex:1,smooth:true,connectNulls:true,data:wxS,itemStyle:{color:'#F40009'},lineStyle:{color:'#F40009',width:3},symbol:'circle',symbolSize:6,label:{show:true,position:'top',distance:7,formatter:function(p){return p.value==null?'':(p.value*100).toFixed(1)+'%';},color:'#F40009',fontSize:9}},
+        {name:'微信瓶身码流量%',type:'line',yAxisIndex:1,smooth:true,connectNulls:true,data:wxS,itemStyle:{color:'#EF242C'},lineStyle:{color:'#EF242C',width:3},symbol:'circle',symbolSize:6,label:{show:true,position:'top',distance:7,formatter:function(p){return p.value==null?'':(p.value*100).toFixed(1)+'%';},color:'#EF242C',fontSize:9}},
         {name:'支付宝瓶身码流量%',type:'line',yAxisIndex:1,smooth:true,connectNulls:true,data:aliS,itemStyle:{color:'#C4922A'},lineStyle:{color:'#C4922A',width:3},symbol:'circle',symbolSize:6,label:{show:true,position:'top',distance:7,formatter:function(p){return p.value==null?'':(p.value*100).toFixed(1)+'%';},color:'#C4922A',fontSize:9}}
       ]},true);
   }
@@ -711,14 +718,14 @@ function renderMauTable(){
     var inp=function(f){return '<input class="mi" type="number" '+ro2+' value="'+(x[f]==null?'':x[f])+'" oninput="setMau('+i+',\''+f+'\',this.value)">';};
     return '<tr><td style="font-weight:600">'+esc(x.month)+'</td>'
       +'<td>'+inp('wx_mau')+'</td><td>'+inp('wx_label')+'</td>'
-      +'<td id="mpw-'+i+'" style="color:#F40009;font-weight:600">'+fP(x.wx_label,x.wx_mau)+'</td>'
+      +'<td id="mpw-'+i+'" style="color:#EF242C;font-weight:600">'+fP(x.wx_label,x.wx_mau)+'</td>'
       +'<td>'+inp('ali_mau')+'</td><td>'+inp('ali_chunyue')+'</td>'
       +'<td id="mpa-'+i+'" style="color:#C4922A;font-weight:600">'+fP(x.ali_chunyue,x.ali_mau)+'</td>'
       +(VIEW_ONLY?'':'<td><button class="mbx" title="删除该月" onclick="delMauMonth('+i+')">×</button></td>')+'</tr>';
   }).join('');
-  if(!M.length)rowsHtml='<tr><td colspan="'+(VIEW_ONLY?7:8)+'" style="color:#9AA0A6;padding:8px;text-align:left">暂无 MAU 数据，点「＋ 新增月份」或导入 Excel</td></tr>';
-  el.innerHTML='<style>#mau-table table{width:100%;border-collapse:collapse;font-size:12px}#mau-table th,#mau-table td{padding:4px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap}#mau-table th{color:#6B7280;font-weight:600;background:#FAFAF8}#mau-table td:first-child,#mau-table th:first-child{text-align:left}#mau-table input.mi{width:98px;border:1px solid transparent;border-radius:5px;padding:4px 6px;font-size:12px;text-align:right;background:transparent;color:#1B1B1F;outline:none;font-family:inherit}#mau-table input.mi:hover{border-color:#E7E7EA}#mau-table input.mi:focus{border-color:#F40009;background:#fff}#mau-table input[type=number]::-webkit-outer-spin-button,#mau-table input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}#mau-table .mbx{border:none;background:none;color:#9AA0A6;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}#mau-table .mbx:hover{background:#FDECEC;color:#F40009}#mau-table .madd{border:1px solid #E7E7EA;background:#fff;border-radius:7px;font-size:12px;padding:5px 12px;cursor:pointer;color:#1B1B1F}#mau-table .madd:hover{background:#F4F4F6}</style>'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:12px;font-weight:600;color:#6B7280">MAU 贡献数据（月度 · 可直接编辑，%自动算）</div>'+(VIEW_ONLY?'':'<button class="madd" onclick="addMauMonth()">＋ 新增月份</button>')+'</div>'
+  if(!M.length)rowsHtml='<tr><td colspan="'+(VIEW_ONLY?7:8)+'" style="color:#9AA3AD;padding:8px;text-align:left">暂无 MAU 数据，点「＋ 新增月份」或导入 Excel</td></tr>';
+  el.innerHTML='<style>#mau-table table{width:100%;border-collapse:collapse;font-size:12px}#mau-table th,#mau-table td{padding:4px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap}#mau-table th{color:#747E89;font-weight:600;background:#FAFAF8}#mau-table td:first-child,#mau-table th:first-child{text-align:left}#mau-table input.mi{width:98px;border:1px solid transparent;border-radius:5px;padding:4px 6px;font-size:12px;text-align:right;background:transparent;color:#1A1F26;outline:none;font-family:inherit}#mau-table input.mi:hover{border-color:#E7E9EC}#mau-table input.mi:focus{border-color:#EF242C;background:#fff}#mau-table input[type=number]::-webkit-outer-spin-button,#mau-table input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}#mau-table .mbx{border:none;background:none;color:#9AA3AD;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}#mau-table .mbx:hover{background:#FDECEC;color:#EF242C}#mau-table .madd{border:1px solid #E7E9EC;background:#fff;border-radius:7px;font-size:12px;padding:5px 12px;cursor:pointer;color:#1A1F26}#mau-table .madd:hover{background:#F5F6F7}</style>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><div style="font-size:12px;font-weight:600;color:#747E89">MAU 贡献数据（月度 · 可直接编辑，%自动算）</div>'+(VIEW_ONLY?'':'<button class="madd" onclick="addMauMonth()">＋ 新增月份</button>')+'</div>'
     +'<table><thead><tr><th>月份</th><th>微信MAU</th><th>微信瓶身码UV</th><th>微信贡献%</th><th>支付宝MAU</th><th>支付宝纯悦UV</th><th>支付宝贡献%</th>'+(VIEW_ONLY?'':'<th></th>')+'</tr></thead><tbody>'+rowsHtml+'</tbody></table>';
 }
 function setMau(i,f,val){
@@ -748,7 +755,7 @@ function delMauMonth(i){
 function renderActList(){
   var el=document.getElementById('act-list');if(!el)return;
   var A=BACT();
-  if(!A.length){el.innerHTML='<div style="font-size:12px;color:#9AA0A6;padding:6px 2px">暂无瓶身码活动</div>';return;}
+  if(!A.length){el.innerHTML='<div style="font-size:12px;color:#9AA3AD;padding:6px 2px">暂无瓶身码活动</div>';return;}
   var rows=A.map(function(a,i){
     var ended=isEnded(a);
     var st=a.pstart?ddisp(a.pstart):'—';
@@ -846,7 +853,7 @@ function renderTransition(){
   const chartEl=document.getElementById('chTransition');if(!chartEl)return;
   if(!charts.chTransition)charts.chTransition=echarts.init(chartEl);
   const pct=v=>(v*100).toFixed(0)+'%';
-  const barData=calc=>categories.map(b=>b.isTotal?{value:calc(b),label:{fontSize:14,fontWeight:700,color:'#1B1B1F',distance:8}}:calc(b));
+  const barData=calc=>categories.map(b=>b.isTotal?{value:calc(b),label:{fontSize:14,fontWeight:700,color:'#1A1F26',distance:8}}:calc(b));
   charts.chTransition.setOption({
     animationDuration:350,
     grid:{left:170,right:16,top:58,bottom:52},
@@ -855,9 +862,9 @@ function renderTransition(){
     xAxis:{type:'category',data:categories.map(b=>b.name),axisTick:{show:false},axisLine:{lineStyle:{color:'#D9D9DD'}},axisLabel:{interval:0,fontSize:10,color:'#52525A',margin:12,formatter:v=>v==='Minute Maid'?'Minute\nMaid':v==='Shui Dong Le'?'Shui Dong\nLe':v}},
     yAxis:{type:'value',min:0,max:1,interval:.2,axisTick:{show:false},axisLine:{show:false},axisLabel:{formatter:v=>pct(v),color:'#8A8A92',fontSize:10},splitLine:{lineStyle:{color:'#ECECEF',type:'dashed'}}},
     series:[
-      {name:'Toggle Design %',type:'bar',barMaxWidth:22,data:barData(b=>transitionPct(b.toggle,b.sku)),itemStyle:{color:'#E8A33D',borderRadius:[3,3,0,0]},label:{show:true,position:'top',formatter:p=>pct(p.value),fontSize:9,color:'#55555C'}},
+      {name:'Toggle Design %',type:'bar',barMaxWidth:22,data:barData(b=>transitionPct(b.toggle,b.sku)),itemStyle:{color:'#E69A37',borderRadius:[3,3,0,0]},label:{show:true,position:'top',formatter:p=>pct(p.value),fontSize:9,color:'#55555C'}},
       {name:'Connected Pack SKU %',type:'bar',barMaxWidth:22,data:barData(b=>transitionPct(b.connected,b.sku)),itemStyle:{color:'#A8A8AB',borderRadius:[3,3,0,0]},label:{show:true,position:'top',formatter:p=>pct(p.value),fontSize:9,color:'#55555C'}},
-      {name:'Connected Pack Volume %',type:'bar',barMaxWidth:22,data:barData(b=>transitionPct(b.connectedVolume,b.volume)),itemStyle:{color:'#F40009',borderRadius:[3,3,0,0]},label:{show:true,position:'top',formatter:p=>pct(p.value),fontSize:9,color:'#3F3F45'}}
+      {name:'Connected Pack Volume %',type:'bar',barMaxWidth:22,data:barData(b=>transitionPct(b.connectedVolume,b.volume)),itemStyle:{color:'#EF242C',borderRadius:[3,3,0,0]},label:{show:true,position:'top',formatter:p=>pct(p.value),fontSize:9,color:'#3F3F45'}}
     ]
   },true);
   charts.chTransition.resize();
@@ -872,9 +879,9 @@ function initCharts(){
   window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
 }
 function setScale(m){scaleMode=m;document.getElementById('sc-lin').className=m==='linear'?'on':'';document.getElementById('sc-log').className=m==='log'?'on':'';renderCharts();}
-const axisStyle={axisLine:{lineStyle:{color:'#ddd'}},axisLabel:{color:'#6B7280',fontSize:10},axisTick:{show:false}};
-const rot={interval:0,rotate:32,color:'#6B7280',fontSize:9};
-const pctAxis={type:'value',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:v=>(v*100)+'%',color:'#6B7280',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}};
+const axisStyle={axisLine:{lineStyle:{color:'#ddd'}},axisLabel:{color:'#747E89',fontSize:10},axisTick:{show:false}};
+const rot={interval:0,rotate:32,color:'#747E89',fontSize:9};
+const pctAxis={type:'value',axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:v=>(v*100)+'%',color:'#747E89',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}};
 function renderCharts(){
   if(!hasEC()||!charts.ch1)return;
   // Keep every UTC campaign grouped at the far right for every period,
@@ -885,15 +892,15 @@ function renderCharts(){
   const logTick=v=>{const n=Math.pow(10,v);if(n>=1e8)return (n/1e8).toFixed(n>=1e9?0:1).replace(/\.0$/,'')+'亿';if(n>=1e4)return (n/1e4).toFixed(n>=1e5?0:1).replace(/\.0$/,'')+'万';return Math.round(n).toLocaleString();};
   charts.ch1.setOption({grid:{left:58,right:18,top:24,bottom:70},tooltip:{trigger:'axis',formatter:ps=>{if(!ps||!ps.length)return '';const p=ps[0],raw=p.data&&p.data.rawValue;return esc(p.axisValueLabel||p.axisValue)+'<br>'+p.marker+(raw==null?'—':Math.round(raw).toLocaleString());}},
     xAxis:{type:'category',data:allNames,...axisStyle,axisLabel:rot},
-    yAxis:scaleMode==='log'?{type:'value',min:0,axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:logTick,color:'#6B7280',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}}:{type:'value',...axisStyle,splitLine:{lineStyle:{color:'#F0F0F2'}}},
-    series:[{type:'bar',data:data1,barMaxWidth:40,itemStyle:{borderRadius:[4,4,0,0]},label:{show:true,position:'top',formatter:p=>p.data&&p.data.rawValue!=null?Math.round(p.data.rawValue).toLocaleString():'',color:'#6B7280',fontSize:9}}]},true);
+    yAxis:scaleMode==='log'?{type:'value',min:0,axisLine:{lineStyle:{color:'#ddd'}},axisTick:{show:false},axisLabel:{formatter:logTick,color:'#747E89',fontSize:10},splitLine:{lineStyle:{color:'#F0F0F2'}}}:{type:'value',...axisStyle,splitLine:{lineStyle:{color:'#F0F0F2'}}},
+    series:[{type:'bar',data:data1,barMaxWidth:40,itemStyle:{borderRadius:[4,4,0,0]},label:{show:true,position:'top',formatter:p=>p.data&&p.data.rawValue!=null?Math.round(p.data.rawValue).toLocaleString():'',color:'#747E89',fontSize:9}}]},true);
   const bn=BACT().map(a=>a.name),bc=BACT().map(a=>rowCalc(a.code));
   charts.ch2.setOption({grid:{left:50,right:16,top:24,bottom:70},tooltip:{trigger:'axis',valueFormatter:v=>v==null?'—':(v*100).toFixed(1)+'%'},
     xAxis:{type:'category',data:bn,...axisStyle,axisLabel:rot},yAxis:pctAxis,
-    series:[{type:'bar',data:bc.map(c=>c.share),itemStyle:{color:RED,borderRadius:[4,4,0,0]},barMaxWidth:38,label:{show:true,position:'top',formatter:p=>p.value==null?'':(p.value*100).toFixed(0)+'%',color:'#6B7280',fontSize:9}}]},true);
-  charts.ch3.setOption({grid:{left:50,right:16,top:32,bottom:70},legend:{top:0,textStyle:{fontSize:10,color:'#6B7280'},data:[L('col_partcp'),L('col_partoth')]},tooltip:{trigger:'axis',valueFormatter:v=>v==null?'—':(v*100).toFixed(1)+'%'},
+    series:[{type:'bar',data:bc.map(c=>c.share),itemStyle:{color:RED,borderRadius:[4,4,0,0]},barMaxWidth:38,label:{show:true,position:'top',formatter:p=>p.value==null?'':(p.value*100).toFixed(0)+'%',color:'#747E89',fontSize:9}}]},true);
+  charts.ch3.setOption({grid:{left:50,right:16,top:32,bottom:70},legend:{top:0,textStyle:{fontSize:10,color:'#747E89'},data:[L('col_partcp'),L('col_partoth')]},tooltip:{trigger:'axis',valueFormatter:v=>v==null?'—':(v*100).toFixed(1)+'%'},
     xAxis:{type:'category',data:bn,...axisStyle,axisLabel:rot},yAxis:pctAxis,
-    series:[{name:L('col_partcp'),type:'bar',data:bc.map(c=>c.partCp),itemStyle:{color:RED,borderRadius:[3,3,0,0]},barMaxWidth:22,label:{show:true,position:'top',formatter:p=>p.value==null?'':(p.value*100).toFixed(0)+'%',color:'#6B7280',fontSize:8}},{name:L('col_partoth'),type:'bar',data:bc.map(c=>c.partOth),itemStyle:{color:GRY,borderRadius:[3,3,0,0]},barMaxWidth:22,label:{show:true,position:'top',formatter:p=>p.value==null?'':(p.value*100).toFixed(0)+'%',color:'#6B7280',fontSize:8}}]},true);
+    series:[{name:L('col_partcp'),type:'bar',data:bc.map(c=>c.partCp),itemStyle:{color:RED,borderRadius:[3,3,0,0]},barMaxWidth:22,label:{show:true,position:'top',formatter:p=>p.value==null?'':(p.value*100).toFixed(0)+'%',color:'#747E89',fontSize:8}},{name:L('col_partoth'),type:'bar',data:bc.map(c=>c.partOth),itemStyle:{color:GRY,borderRadius:[3,3,0,0]},barMaxWidth:22,label:{show:true,position:'top',formatter:p=>p.value==null?'':(p.value*100).toFixed(0)+'%',color:'#747E89',fontSize:8}}]},true);
   // 整体流量占比趋势图已移除；第4张图位置改为 MAU 贡献（见 renderMau/chMau）
 }
 
@@ -978,8 +985,8 @@ function exportPNG(){
     const cw=w*cols+pad*2+gap*(cols-1),chh=head+(h+th)*rows+gap*(rows-1)+pad;
     const cv=document.createElement('canvas');cv.width=cw;cv.height=chh;const cx=cv.getContext('2d');
     cx.fillStyle='#fff';cx.fillRect(0,0,cw,chh);cx.textBaseline='alphabetic';
-    cx.fillStyle='#1B1B1F';cx.font='bold 32px sans-serif';cx.fillText('Connected Pack · 流量看板',pad,46);
-    cx.fillStyle='#F40009';cx.font='17px sans-serif';cx.fillText('数据截至 '+curP().date,pad,head-4);
+    cx.fillStyle='#1A1F26';cx.font='bold 32px sans-serif';cx.fillText('Connected Pack · 流量看板',pad,46);
+    cx.fillStyle='#EF242C';cx.font='17px sans-serif';cx.fillText('数据截至 '+curP().date,pad,head-4);
     imgs.forEach((im,i)=>{const x0=pad+(i%cols)*(w+gap),y0=head+Math.floor(i/cols)*(h+th+gap);cx.fillStyle='#444';cx.font='bold 21px sans-serif';cx.fillText(list[i][1],x0,y0+24);cx.drawImage(im,x0,y0+th,w,h);});
     const a=document.createElement('a');a.href=cv.toDataURL('image/png');a.download='流量看板_'+curP().date+'.png';a.click();toast('已导出合并图表PNG');});
 }
