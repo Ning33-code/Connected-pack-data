@@ -71,7 +71,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 .group-title{font-size:16px;font-weight:850}.group-count{font-size:13px;color:var(--muted)}.group-count strong{font-size:17px;color:var(--red);margin-right:3px}
 .today-pill{display:flex;align-items:center;gap:5px;background:var(--red-soft);border:1px solid #F6B7BA;color:var(--red);padding:3px 8px;border-radius:99px;font-size:10px;font-weight:750}
 .today-pill:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red)}
-.gantt{overflow-x:auto}.gantt-head,.gantt-row{display:flex;min-width:850px}.gantt-head{background:#FAF9F7;border-bottom:2px solid var(--line)}
+.gantt{overflow-x:auto}.gantt-head,.gantt-row{display:flex;min-width:900px}.gantt-head{background:#FAF9F7;border-bottom:2px solid var(--line)}
 .gantt-row{border-bottom:1px solid var(--line)}.gantt-row:last-child{border-bottom:0}.gantt-row:hover{background:#FBFAF8}
 .label{width:220px;min-width:220px;padding:7px 11px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
 .label-head{font-size:11px;font-weight:800;color:var(--muted);justify-content:center}
@@ -138,6 +138,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
 (function(){
   'use strict';
   var PLATFORM_WECHAT='wechat',PLATFORM_ALIPAY='alipay';
+  var CALENDAR_VIEW_START=new Date(2026,0,1),CALENDAR_VIEW_END=new Date(2027,1,1),CALENDAR_VIEW_DAYS=Math.ceil((CALENDAR_VIEW_END-CALENDAR_VIEW_START)/864e5),CALENDAR_MONTH_COUNT=13;
   var data={recs:[],cuts:[],camps:[],savedAt:''};
   var dataScript=null;
   var selectedBrand='',collapsedBrands={};
@@ -248,14 +249,14 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     return out;
   }
   function segments(src,bySource){
-    var start=new Date(2026,0,1),days=365,today=new Date(),out=[];today.setHours(0,0,0,0);
+    var start=new Date(CALENDAR_VIEW_START),days=CALENDAR_VIEW_DAYS,today=new Date(),out=[];today.setHours(0,0,0,0);
     var events=(bySource[src]||[]).slice().sort(function(a,b){return parseDate(a.cut_date)-parseDate(b.cut_date);});
     [PLATFORM_WECHAT,PLATFORM_ALIPAY].forEach(function(platform){
       var platformEvents=events.filter(function(event){return cutPlatform(event)===platform;});
       var actual=platformEvents.filter(function(event){var d=parseDate(event.cut_date);return(event.status||'done')==='done'&&d&&d<=today;});
       var defaultFallbackAdded=false;
       actual.forEach(function(event,index){
-        var s=parseDate(event.cut_date),naturalEnd=index<actual.length-1?parseDate(actual[index+1].cut_date):new Date(2027,0,1),e=naturalEnd;
+        var s=parseDate(event.cut_date),naturalEnd=index<actual.length-1?parseDate(actual[index+1].cut_date):new Date(CALENDAR_VIEW_END),e=naturalEnd;
         var code=canonicalActivityCode(event.code||''),activityEnd=activityEndDate(code,platform),fallbackStart=null;
         if(index===actual.length-1&&platform===PLATFORM_WECHAT&&code!==HONOR_WALL_CODE&&activityEnd){fallbackStart=calendarFallbackStart(activityEnd,today);if(fallbackStart>s&&fallbackStart<e)e=fallbackStart;}
         var left=Math.max(0,Math.ceil((s-start)/864e5)),right=Math.min(days,Math.ceil((e-start)/864e5));
@@ -263,7 +264,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
         if(fallbackStart){var fallbackLeft=Math.max(0,Math.ceil((fallbackStart-start)/864e5));if(fallbackLeft<days){out.push({code:HONOR_WALL_CODE,platform:PLATFORM_WECHAT,start:calendarDateText(fallbackStart),end:'待执行',left:fallbackLeft/days*100,width:(days-fallbackLeft)/days*100,pending:true,defaultFallback:true});defaultFallbackAdded=true;}}
       });
       platformEvents.filter(function(event){return(event.status||'done')==='pending';}).forEach(function(event){
-        var s=parseDate(event.cut_date),code=canonicalActivityCode(event.code||''),end=activityEndDate(code,platform)||new Date(2027,0,1);
+        var s=parseDate(event.cut_date),code=canonicalActivityCode(event.code||''),end=activityEndDate(code,platform)||new Date(CALENDAR_VIEW_END);
         if(defaultFallbackAdded&&platform===PLATFORM_WECHAT&&code===HONOR_WALL_CODE)return;
         if(end<=s)end=new Date(s.getTime()+864e5);var left=Math.max(0,Math.ceil((s-start)/864e5)),right=Math.min(days,Math.ceil((end-start)/864e5));
         if(right<=0||left>=days||platform===PLATFORM_ALIPAY&&aliHome(code))return;
@@ -295,7 +296,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     var by=codeEvents(),q=$('q').value.trim().toLowerCase(),code=$('code').value;
     var srcs=data.recs.filter(function(r){
       var src=String(r.utm_source||'').trim(),y=prodYear(src),events=by[src]||[];
-      if(!src||!y||!events.some(function(c){var d=parseDate(c.cut_date);return d&&d.getFullYear()>=2025&&d.getFullYear()<=2026;}))return false;
+      if(!src||!y||!events.some(function(c){var d=parseDate(c.cut_date);return d&&d>=new Date(2025,0,1)&&d<CALENDAR_VIEW_END;}))return false;
       if(selectedBrand&&brandDef(r).key!==selectedBrand)return false;
       if(code&&!events.some(function(c){return c.code===code;}))return false;
       var hay=[src,r.brand,r.sku_info,r.flavor,r.sku,r.pkg].join(' ').toLowerCase();
@@ -319,7 +320,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       var h=color(code).replace('#',''),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16),mix=.55;
       return '#'+[r,g,b].map(function(v){return Math.round(v+(255-v)*mix).toString(16).padStart(2,'0');}).join('').toUpperCase();
     }
-    var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));
+    var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));months.push(new Date(2027,0,1));
     var today=new Date();today.setHours(0,0,0,0);
     var usedCodes=new Set(),rows=[];
     f.srcs.forEach(function(src){
@@ -341,7 +342,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     var xml='<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>'
       +'<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
       +'<Styles><Style ss:ID="Default"><Font ss:FontName="微软雅黑" x:CharSet="134"/><Alignment ss:Vertical="Center"/></Style><Style ss:ID="D"><Font ss:FontName="微软雅黑" x:CharSet="134"/><Alignment ss:Vertical="Center" ss:WrapText="1"/></Style><Style ss:ID="H"><Font ss:FontName="微软雅黑" x:CharSet="134" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#111111" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style><Style ss:ID="S"><Font ss:FontName="微软雅黑" x:CharSet="134" ss:Bold="1" ss:Color="#F40009"/><Alignment ss:Vertical="Center"/></Style>'+codeStyles+'</Styles>'
-      +'<Worksheet ss:Name="Calendar 2025-2026"><Table ss:ExpandedColumnCount="28" ss:ExpandedRowCount="'+(rows.length+2)+'">'
+      +'<Worksheet ss:Name="Calendar 2025-2027"><Table ss:ExpandedColumnCount="29" ss:ExpandedRowCount="'+(rows.length+2)+'">'
       +'<Column ss:Width="82"/><Column ss:Width="72"/><Column ss:Width="220"/><Column ss:Width="105"/>'+months.map(function(mm){return'<Column ss:Width="88"'+(mm.getFullYear()===2025?' ss:Hidden="1"':'')+'/>';}).join('')
       +'<Row ss:Height="24">'+headers.map(function(h){return cell(h,'H');}).join('')+'</Row>';
     rows.forEach(function(vals){
@@ -354,7 +355,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
       }
       xml+='</Row>';
     });
-    xml+='<Row><Cell ss:StyleID="D" ss:MergeAcross="27"><Data ss:Type="String">导出范围：当前网页筛选结果；时间线为 2025-01 至 2026-12，2025 年月份列默认隐藏，可在 Excel 中展开查看。</Data></Cell></Row>'
+    xml+='<Row><Cell ss:StyleID="D" ss:MergeAcross="28"><Data ss:Type="String">导出范围：当前网页筛选结果；时间线为 2025-01 至 2027-01，2025 年月份列默认隐藏，可在 Excel 中展开查看。</Data></Cell></Row>'
       +'</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>1</SplitHorizontal><TopRowBottomPane>1</TopRowBottomPane><SplitVertical>4</SplitVertical><LeftColumnRightPane>4</LeftColumnRightPane></WorksheetOptions></Worksheet></Workbook>';
     var blob=new Blob(['\ufeff'+xml],{type:'application/vnd.ms-excel;charset=utf-8'}),a=document.createElement('a');
     a.href=URL.createObjectURL(blob);a.download='Label_Code_Campaign_Calendar_'+new Date().toISOString().slice(0,10)+'.xls';
@@ -369,12 +370,12 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     try{
       var wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('微信扫码核验表',{views:[{state:'frozen',xSplit:5,ySplit:2}]});
       wb.creator='UAD Connected Pack';wb.created=new Date();
-      var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));
+      var months=[];for(var y=2025;y<=2026;y++)for(var m=0;m<12;m++)months.push(new Date(y,m,1));months.push(new Date(2027,0,1));
       ws.columns=[
         {header:'产码时间',key:'date',width:13},{header:'品牌',key:'brand',width:12},
         {header:'SKU信息',key:'sku',width:34},{header:'UTM_SOURCE',key:'source',width:17},{header:'当前微信扫码应到',key:'currentWechat',width:24}
       ].concat(months.map(function(mm){return{header:mm.getFullYear()+'-'+String(mm.getMonth()+1).padStart(2,'0'),width:15};}));
-      ws.insertRow(1,['本表仅展示微信端的落地活动情况，支付宝端活动不在本表展示。']);ws.mergeCells(1,1,1,29);
+      ws.insertRow(1,['本表仅展示微信端的落地活动情况，支付宝端活动不在本表展示。']);ws.mergeCells(1,1,1,30);
       var notice=ws.getCell(1,1);notice.font={name:'微软雅黑',bold:true,size:12,color:{argb:'FF9A1A1F'}};notice.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFF3D6'}};notice.alignment={vertical:'middle'};ws.getRow(1).height=24;
       for(var hiddenMonth=0;hiddenMonth<12;hiddenMonth++)ws.getColumn(6+hiddenMonth).hidden=true;
       ws.getRow(2).height=23;ws.getRow(2).eachCell(function(cell){
@@ -420,8 +421,8 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
           i=j+1;
         }
       });
-      var note=ws.addRow(['导出范围：当前网页筛选结果；月度色块仅展示微信路由，时间线固定为 2025-01 至 2026-12。']);
-      ws.mergeCells(note.number,1,note.number,29);note.font={italic:true,size:9,color:{argb:'FF6F6A65'}};
+      var note=ws.addRow(['导出范围：当前网页筛选结果；月度色块仅展示微信路由，时间线固定为 2025-01 至 2027-01。']);
+      ws.mergeCells(note.number,1,note.number,30);note.font={italic:true,size:9,color:{argb:'FF6F6A65'}};
       ws.eachRow(function(row){
         row.eachCell({includeEmpty:true},function(cell){
           cell.font=Object.assign({name:'微软雅黑'},cell.font||{});
@@ -437,9 +438,9 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   }
   function monthHeader(){
     var s='<div class="gantt-head"><div class="label label-head">SKU 信息</div><div class="track month-track">';
-    for(var i=0;i<12;i++)s+='<span class="month" style="left:'+(i*100/12)+'%;width:'+(100/12)+'%">'+(i+1)+'月</span>';
-    var now=new Date();
-    if(now.getFullYear()===2026){var day=Math.ceil((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(2026,0,1))/864e5);s+='<i class="today-line" style="left:'+(day/365*100)+'%"></i>';}
+    for(var i=0;i<CALENDAR_MONTH_COUNT;i++)s+='<span class="month" style="left:'+(i*100/CALENDAR_MONTH_COUNT)+'%;width:'+(100/CALENDAR_MONTH_COUNT)+'%">'+(i===12?'2027·1月':(i+1)+'月')+'</span>';
+    var now=new Date(),midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    if(midnight>=CALENDAR_VIEW_START&&midnight<CALENDAR_VIEW_END){var day=Math.ceil((midnight-CALENDAR_VIEW_START)/864e5);s+='<i class="today-line" style="left:'+(day/CALENDAR_VIEW_DAYS*100)+'%"></i>';}
     return s+'</div></div>';
   }
   function render(){
@@ -466,7 +467,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
         html+='<div class="gantt-row"><div class="label" title="'+esc((r.sku_info||''))+'"><span class="src">'+esc(src)+'</span><span class="sku">'+esc((r.sku_info||''))+'</span></div><div class="track'+(hasAlipay?' has-alipay':'')+'">';
         sg.filter(function(x){return x.platform===PLATFORM_WECHAT;}).forEach(function(x){html+='<span class="seg'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" data-fallback="'+(x.defaultFallback?'1':'0')+'" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+';color:'+textColor(x.code)+'">'+esc(x.code)+'</span>';});
         sg.filter(function(x){return x.platform===PLATFORM_ALIPAY;}).forEach(function(x){html+='<span class="seg alipay'+(x.pending?' pending':'')+'" data-code="'+esc(x.code)+'" data-start="'+esc(x.start)+'" data-end="'+esc(x.end)+'" data-pending="'+(x.pending?'1':'0')+'" data-fallback="0" style="left:'+x.left.toFixed(3)+'%;width:'+x.width.toFixed(3)+'%;background-color:'+color(x.code)+'">支付宝 · '+esc(x.code)+'</span>';});
-        var n=new Date();if(n.getFullYear()===2026){var d=Math.ceil((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(2026,0,1))/864e5);html+='<i class="today-line" style="left:'+(d/365*100)+'%"></i>';}
+        var n=new Date(),midnight=new Date(n.getFullYear(),n.getMonth(),n.getDate());if(midnight>=CALENDAR_VIEW_START&&midnight<CALENDAR_VIEW_END){var d=Math.ceil((midnight-CALENDAR_VIEW_START)/864e5);html+='<i class="today-line" style="left:'+(d/CALENDAR_VIEW_DAYS*100)+'%"></i>';}
         html+='</div></div>';
       });
       html+='</div></section>';
