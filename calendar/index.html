@@ -159,6 +159,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   ];
   var CAMPAIGN_COLORS={
     '2026CNY':'#F40009',
+    '2027CNY':'#F40009',
     '2605COKEFIFA':'#D92B34',
     '2603CCNSAI':'#252525',
     '2603MMWM':'#F2B233',
@@ -181,6 +182,20 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
     var raw=String(value||'').trim(),key=raw.replace(/[\s_-]+/g,'').toLowerCase();
     if(raw==='OCP HonorWall（活动结束后默认）')return HONOR_WALL_CODE;
     return key==='hw'||key==='honorwall'||key==='202412honorwall'||key==='ocphonorwall'?HONOR_WALL_CODE:raw;
+  }
+  function campaignFamilyColor(code){
+    var key=String(canonicalActivityCode(code)||'').replace(/[\s_-]+/g,'').toUpperCase();
+    if(/CNY/.test(key))return '#F40009';
+    if(/HONOR.*WALL|OCPHW/.test(key))return '#F2C94C';
+    if(/COKE|可口可乐/.test(key))return '#D92B34';
+    if(/SPRITE|雪碧/.test(key))return '#159447';
+    if(/FANTA|芬达/.test(key))return '#F28A18';
+    if(/MINUTEMAID|美汁源|\d{4}MM/.test(key))return '#F2B233';
+    if(/QOO|酷儿/.test(key))return '#63C8EA';
+    if(/CHUNYUE|纯悦|\d{4}CY/.test(key))return '#5A2B82';
+    if(/SCHWEPPES|怡泉/.test(key))return '#E7AD26';
+    if(/COSTA/.test(key))return '#7A1E38';
+    return '';
   }
   function aliHome(value){var key=canonicalActivityCode(value).replace(/[\s_-]+/g,'').toLowerCase();return key==='ali首页'||key==='支付宝首页'||key==='小程序首页'||key==='alipayhome';}
   function activityPlatform(campaign){
@@ -235,6 +250,7 @@ h1{font-size:29px;line-height:1.12;letter-spacing:-.45px}.hero-sub{font-size:13p
   function color(code){
     var key=canonicalActivityCode(code);
     if(CAMPAIGN_COLORS[key])return CAMPAIGN_COLORS[key];
+    var familyColor=campaignFamilyColor(key);if(familyColor)return familyColor;
     var fallback=['#C9A227','#4F8E86','#A06A9B','#6689B8','#D47B5B'],h=0;
     for(var i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;
     return fallback[h%fallback.length];
